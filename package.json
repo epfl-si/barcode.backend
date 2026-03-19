@@ -1,0 +1,32 @@
+{
+  "name": "barcode-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/epfl-si/barcode.backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/epfl-si/barcode.backend/issues"
+  },
+  "homepage": "https://github.com/epfl-si/barcode.backend#readme",
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "prisma": "^7.5.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@prisma/adapter-mariadb": "^7.5.0",
+    "@prisma/client": "^7.5.0",
+    "dotenv": "^17.3.1"
+  }
+}

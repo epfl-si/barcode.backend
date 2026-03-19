@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model stoPlace_catalyse {
+  id_stoPlace Int    @id @default(autoincrement())
+  stoPlace    String @db.VarChar(30)
+}
+
+model stoProperty_catalyse {
+  id_stoProperty Int    @id @default(autoincrement())
+  stoProperty    String @db.VarChar(50)
+}
+
+model stoType_catalyse {
+  id_stoType Int    @id @default(autoincrement())
+  stoType    String @db.VarChar(20)
+}
+
+model storage_catalyse {
+  id_storage     Int      @id @default(autoincrement())
+  id_stoType     Int
+  id_stoProperty Int
+  id_stoPlace    Int
+  content        String   @db.Char(2)
+  barcode        String   @unique(map: "barcode") @db.VarChar(80)
+  lab_display    String   @db.VarChar(20)
+  sciper         Int
+  author         String   @db.VarChar(50)
+  date           DateTime @db.DateTime(0)
+
+  @@unique([barcode, lab_display], map: "unique_barcode")
+  @@index([id_stoPlace], map: "id_stoPlace")
+  @@index([id_stoProperty], map: "id_stoProperty")
+  @@index([id_stoType], map: "id_stoType")
+}
+
+model sub_storage_catalyse {
+  id_sub_storage      Int    @id @default(autoincrement())
+  id_storage          Int
+  sub_storage_barcode String @unique(map: "sub_storage_barcode") @db.VarChar(80)
+
+  @@unique([id_storage, sub_storage_barcode], map: "unique_sub_storage_barcode")
+}
