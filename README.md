@@ -1,4 +1,7 @@
-# template.graphql
+# Barcode backend
+
+## Install Prisma
+
 https://www.prisma.io/docs/prisma-orm/quickstart/mysql
 To get the existing DB
 ```
