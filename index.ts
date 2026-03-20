@@ -1,11 +1,21 @@
-import express from 'express';
-const app = express()
-const port = 3000
+import express from "express";
+import {ApolloServer} from "@apollo/server";
+import {expressMiddleware} from "@as-integrations/express5";
+import {schema} from "./libs/schema";
 
-app.get('/', (req, res) => {
-	res.send('Hello World!')
-})
+async function startServer() {
+	const app = express();
 
-app.listen(port, () => {
-	console.log(`Example app listening on port ${port}`)
-})
+	const server = new ApolloServer({ schema });
+
+	await server.start();
+
+	app.use(express.json());
+	app.use('/graphql', expressMiddleware(server));
+
+	app.listen(4000, () => {
+		console.log('Server running at http://localhost:4000/graphql');
+	});
+}
+
+startServer();

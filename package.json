@@ -26,8 +26,16 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@apollo/server": "^5.4.0",
+    "@as-integrations/express5": "^1.1.2",
+    "@pothos/core": "^4.12.0",
+    "@pothos/plugin-prisma": "^4.14.2",
     "@prisma/adapter-mariadb": "^7.5.0",
     "@prisma/client": "^7.5.0",
-    "express": "^5.2.1"
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "graphql": "^16.13.1",
+    "jsonwebtoken": "^9.0.3",
+    "jwks-rsa": "^4.0.1"
   }
 }

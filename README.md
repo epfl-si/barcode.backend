@@ -20,3 +20,6 @@ npx prisma migrate dev
 ## Install Express
 https://expressjs.com/en/starter/hello-world.html
 
+## Install Apollo Server
+https://www.apollographql.com/docs/apollo-server/getting-started
+
