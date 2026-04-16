@@ -1,6 +1,6 @@
 import SchemaBuilder from "@pothos/core";
 import PrismaPlugin from "@pothos/plugin-prisma";
-import PrismaTypes, {getDatamodel} from "../generated/pothos-prisma-types";
+import PrismaTypes, {getDatamodel} from "../../generated/pothos-prisma-types";
 import {prisma} from "./prisma";
 
 export const builder = new SchemaBuilder<{

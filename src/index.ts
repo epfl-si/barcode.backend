@@ -1,7 +1,7 @@
 import express from "express";
 import {ApolloServer} from "@apollo/server";
 import {expressMiddleware} from "@as-integrations/express5";
-import {schema} from "../libs/schema";
+import {schema} from "../libs/prisma/schema";
 
 async function startServer() {
 	const app = express();

@@ -1,5 +1,5 @@
-import {prisma} from "../../libs/prisma";
-import {builder} from "../../libs/builder";
+import {prisma} from "../libs/prisma/prisma";
+import {builder} from "../libs/prisma/builder";
 
 builder.prismaObject('Inventory', {
   name: 'GetInventory',
