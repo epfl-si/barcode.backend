@@ -16,7 +16,9 @@ datasource db {
   provider = "mysql"
 }
 
-model inventory {
+model Inventory {
   id_storage Int    @id @default(autoincrement())
   barcode    String @unique(map: "barcode") @db.VarChar(80)
+
+  @@map("inventory")
 }
