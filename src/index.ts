@@ -1,20 +1,11 @@
-import express from "express";
-import {ApolloServer} from "@apollo/server";
-import {expressMiddleware} from "@as-integrations/express5";
-import {schema} from "../libs/prisma/schema";
+import {makeServer} from "./server";
 
-async function startServer() {
-	const app = express();
+const start = async () => {
+  const server = await makeServer();
 
-	const server = new ApolloServer({ schema });
-	await server.start();
+  server.listen(4000, () => {
+    console.log('Server running at http://localhost:4000/graphql');
+  });
+};
 
-	app.use(express.json());
-	app.use('/graphql', expressMiddleware(server));
-
-	app.listen(4000, () => {
-		console.log('Server running at http://localhost:4000/graphql');
-	});
-}
-
-startServer();
+start();
