@@ -19,3 +19,23 @@ builder.queryType({
     }),
   }),
 });
+
+builder.mutationType({
+  fields: (t) => ({
+    // Add mutation that returns a simple boolean
+    createInventory: t.boolean({
+      args: {
+        barcode: t.arg.string(),
+      },
+      resolve: async (root, args) => {
+        const inventory = {
+          barcode: args.barcode,
+        };
+        await prisma.inventory.create({
+          data: inventory
+        });
+        return true;
+      },
+    }),
+  }),
+});
