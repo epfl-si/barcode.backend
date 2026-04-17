@@ -1,8 +1,8 @@
 import express from "express";
 import {ApolloServer} from "@apollo/server";
-import {schema} from "../libs/prisma/schema";
+import {schema} from "./schema/schema";
 import {expressMiddleware} from "@as-integrations/express5";
-import {formatPrismaError} from "../libs/errors";
+import {formatPrismaError} from "./lib/errors";
 
 export async function makeServer() {
   const app = express();

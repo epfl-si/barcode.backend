@@ -1,5 +1,5 @@
 import {builder} from "./builder";
 
-import '../../schema/inventory'
+import './types/inventory'
 
 export const schema = builder.toSchema();
