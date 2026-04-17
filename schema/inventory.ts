@@ -23,21 +23,18 @@ builder.queryType({
 
 builder.mutationType({
   fields: (t) => ({
-    // Add mutation that returns a simple boolean
     createInventory: t.boolean({
       args: {
         barcode: t.arg.string(),
       },
-      validate: z
-      .object({
+      validate: z.object({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args) => {
-        const inventory = {
-          barcode: args.barcode,
-        };
         await prisma.inventory.create({
-          data: inventory
+          data: {
+            barcode: args.barcode!,
+          }
         });
         return true;
       },
