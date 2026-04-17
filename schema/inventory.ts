@@ -1,5 +1,6 @@
 import {prisma} from "../libs/prisma/prisma";
 import {builder} from "../libs/prisma/builder";
+import { z } from 'zod';
 
 builder.prismaObject('Inventory', {
   name: 'GetInventory',
@@ -27,6 +28,10 @@ builder.mutationType({
       args: {
         barcode: t.arg.string(),
       },
+      validate: z
+      .object({
+        barcode: z.string().nonempty(),
+      }),
       resolve: async (root, args) => {
         const inventory = {
           barcode: args.barcode,
