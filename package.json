@@ -13,7 +13,7 @@
     "url": "git+https://github.com/epfl-si/barcode.backend.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "EPFL ISAS-FSD",
   "license": "ISC",
   "type": "module",
   "bugs": {
