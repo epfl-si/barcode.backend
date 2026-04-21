@@ -1,4 +1,4 @@
-const wellKnowsErrors = {
+const wellKnowsErrors: Record<string, string> = {
 	GRAPHQL_PARSE_FAILED:         "The operation string contains a syntax error",
 	GRAPHQL_VALIDATION_FAILED:    "The operation is not valid against the server’s schema",
 	BAD_USER_INPUT:               "The operation includes an invalid value for a field argument",

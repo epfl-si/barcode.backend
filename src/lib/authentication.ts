@@ -66,10 +66,10 @@ const getJwksUri = (() => {
 async function checkTokenValid(access_token: string) {
 	const client = jwksClient({ jwksUri: await getJwksUri() });
 
-	const getKey = (header, callback) => {
+	const getKey = (header: any, callback: any) => {
 		client.getSigningKey(header.kid, (err, key) => {
 			if (err) return callback(err);
-			const signingKey = key.getPublicKey();
+			const signingKey = key?.getPublicKey();
 			callback(null, signingKey);
 		});
 	}
@@ -81,7 +81,6 @@ async function checkTokenValid(access_token: string) {
 			audience: process.env.OIDC_CLIENT_ID
 		},
 		function(err,decoded) {
-      console.log(decoded);
 			return err ? reject(err) : resolve(decoded);
 		}
 	));
