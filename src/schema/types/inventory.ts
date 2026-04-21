@@ -15,7 +15,7 @@ builder.queryType({
     inventoryList: t.prismaField({
       type: 'Inventory',
       resolve: async (query, root, args, ctx, info) => {
-        return prisma.inventory.findFirst();
+        return ctx.prisma.inventory.findFirst();
       },
     }),
   }),
@@ -30,11 +30,30 @@ builder.mutationType({
       validate: z.object({
         barcode: z.string().nonempty(),
       }),
-      resolve: async (root, args) => {
-        await prisma.inventory.create({
+      resolve: async (root, args, ctx) => {
+        await ctx.prisma.inventory.create({
           data: {
             barcode: args.barcode!,
-          }
+          },
+        });
+        return true;
+      },
+    }),
+    updateInventory: t.boolean({
+      args: {
+        id: t.arg.int(),
+        barcode: t.arg.string(),
+      },
+      validate: z.object({
+        id: z.int(),
+        barcode: z.string().nonempty(),
+      }),
+      resolve: async (root, args, ctx) => {
+        await ctx.prisma.inventory.update({
+          where: { id_storage: args.id },
+          data: {
+            barcode: args.barcode!,
+          },
         });
         return true;
       },
