@@ -7,6 +7,7 @@ import {authenticateFromBearerToken} from "./lib/authentication";
 import { Request } from "express-serve-static-core";
 import { ParsedQs } from "qs";
 import cors from 'cors';
+import {getPrismaForUser} from "./lib/auditablePrisma";
 
 export async function makeServer() {
   const app = express();
@@ -27,7 +28,7 @@ export async function makeServer() {
     expressMiddleware(server, {
       context: async ({req}) => {
         const user = await authenticate(req);
-        const prisma = undefined; //getPrismaForUser(user);
+        const prisma = getPrismaForUser(user);
         return {prisma, user};
       }
     }));
