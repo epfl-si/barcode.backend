@@ -13,9 +13,9 @@ builder.prismaObject('Inventory', {
 builder.queryType({
   fields: (t) => ({
     inventoryList: t.prismaField({
-      type: 'Inventory',
-      resolve: async (query, root, args, ctx, info) => {
-        return ctx.prisma.inventory.findFirst();
+      type: ['Inventory'],
+      resolve: async (query, root, args, ctx: any, info) => {
+        return ctx.prisma.inventory.findMany();
       },
     }),
   }),
@@ -30,7 +30,7 @@ builder.mutationType({
       validate: z.object({
         barcode: z.string().nonempty(),
       }),
-      resolve: async (root, args, ctx) => {
+      resolve: async (root, args, ctx: any) => {
         await ctx.prisma.inventory.create({
           data: {
             barcode: args.barcode!,
@@ -48,7 +48,7 @@ builder.mutationType({
         id: z.int(),
         barcode: z.string().nonempty(),
       }),
-      resolve: async (root, args, ctx) => {
+      resolve: async (root, args, ctx: any) => {
         await ctx.prisma.inventory.update({
           where: { id_storage: args.id },
           data: {
