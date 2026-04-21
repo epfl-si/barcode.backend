@@ -1,6 +1,5 @@
-import {prisma} from "../prisma";
 import {builder} from "../builder";
-import { z } from 'zod';
+import {z} from 'zod';
 
 builder.prismaObject('Inventory', {
   name: 'Inventory',
@@ -14,6 +13,9 @@ builder.queryType({
   fields: (t) => ({
     inventoryList: t.prismaField({
       type: ['Inventory'],
+      authScopes: {
+        isCosec: true,
+      },
       resolve: async (query, root, args, ctx: any, info) => {
         return ctx.prisma.inventory.findMany();
       },
@@ -24,6 +26,9 @@ builder.queryType({
 builder.mutationType({
   fields: (t) => ({
     createInventory: t.boolean({
+      authScopes: {
+        isCosec: true,
+      },
       args: {
         barcode: t.arg.string(),
       },
@@ -40,6 +45,9 @@ builder.mutationType({
       },
     }),
     updateInventory: t.boolean({
+      authScopes: {
+        isCosec: true,
+      },
       args: {
         id: t.arg.int(),
         barcode: t.arg.string(),
