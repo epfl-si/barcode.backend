@@ -1,7 +1,7 @@
-export type UserInfo = {
+interface UserInfo {
 	groups: string[];
 	username: string;
 	isAdmin?: boolean;
   isCosec?: boolean;
   isReadOnly?: boolean;
-};
+}
