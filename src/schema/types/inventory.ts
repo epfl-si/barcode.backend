@@ -3,7 +3,7 @@ import {builder} from "../builder";
 import { z } from 'zod';
 
 builder.prismaObject('Inventory', {
-  name: 'GetInventory',
+  name: 'Inventory',
   fields: (t: any) => ({
     id: t.exposeID('id_storage'),
     barcode: t.exposeString('barcode'),
