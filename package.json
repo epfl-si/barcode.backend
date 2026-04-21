@@ -33,6 +33,7 @@
     "@as-integrations/express5": "^1.1.2",
     "@pothos/core": "^4.12.0",
     "@pothos/plugin-prisma": "^4.14.3",
+    "@pothos/plugin-scope-auth": "^4.1.6",
     "@pothos/plugin-validation": "^4.2.0",
     "@prisma/adapter-mariadb": "^7.7.0",
     "@prisma/client": "^7.7.0",
