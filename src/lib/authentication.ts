@@ -2,7 +2,6 @@ import {Request} from "express-serve-static-core";
 import {ParsedQs} from "qs";
 import jwt from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa';
-import {UserInfo} from "./userType";
 
 export function getBearerToken(req: Request<{}, any, any, ParsedQs, Record<string, any>>): string | undefined {
 	const matched = req.headers.authorization?.match(/^Bearer\s(.*)$/);
