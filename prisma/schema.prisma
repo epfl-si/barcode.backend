@@ -22,3 +22,15 @@ model Inventory {
 
   @@map("inventory")
 }
+
+model mutation_logs {
+  id_mutation_logs Int      @id @default(autoincrement())
+  modified_by      String
+  modified_on      DateTime @default(now())
+  table_name       String
+  table_id         Int
+  column_name      String
+  old_value        String   @db.LongText
+  new_value        String   @db.LongText
+  action           String
+}
