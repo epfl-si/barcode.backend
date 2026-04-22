@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
@@ -13,7 +13,7 @@ generator pothos {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
 }
 
 model Inventory {
@@ -29,8 +29,8 @@ model mutation_logs {
   modified_on      DateTime @default(now())
   table_name       String
   table_id         Int
-  column_name      String
-  old_value        String   @db.LongText
-  new_value        String   @db.LongText
+  column_name      String?
+  old_value        String
+  new_value        String
   action           String
 }
