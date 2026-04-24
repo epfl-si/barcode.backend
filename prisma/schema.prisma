@@ -16,21 +16,117 @@ datasource db {
   provider = "postgresql"
 }
 
-model Inventory {
-  id_storage Int    @id @default(autoincrement())
-  barcode    String @unique(map: "barcode") @db.VarChar(80)
+model RoomType {
+  idRoomType Int    @id @default(autoincrement()) @map("id_room_type")
+  roomType   String @unique @map("room_type") @db.VarChar(64)
 
-  @@map("inventory")
+  locations Location[]
+
+  @@map("room_type")
 }
 
-model mutation_logs {
-  id_mutation_logs Int      @id @default(autoincrement())
-  modified_by      String
-  modified_on      DateTime @default(now())
-  table_name       String
-  table_id         Int
-  column_name      String?
-  old_value        String
-  new_value        String
-  action           String
+model ProductType {
+  idProductType Int    @id @default(autoincrement()) @map("id_product_type")
+  productType   String @unique @map("product_type") @db.VarChar(64)
+
+  allowedProductStorage AllowedProductStorage[]
+  locations             Location[]
+
+  @@map("product_type")
+}
+
+model StorageType {
+  idStorageType Int    @id @default(autoincrement()) @map("id_storage_type")
+  storageType   String @unique @map("storage_type") @db.VarChar(64)
+
+  allowedProductStorage AllowedProductStorage[]
+  allowedStorageSubType AllowedStorageSubType[]
+  locations             Location[]
+
+  @@map("storage_type")
+}
+
+model StorageSubType {
+  idStorageSubType Int    @id @default(autoincrement()) @map("id_storage_subtype")
+  storageSubType   String @unique @map("storage_subtype") @db.VarChar(64)
+
+  allowedStorageSubType AllowedStorageSubType[]
+  locations             Location[]
+
+  @@map("storage_subtype")
+}
+
+model AllowedProductStorage {
+  idProductType Int @map("id_product_type")
+  idStorageType Int @map("id_storage_type")
+
+  productType ProductType @relation(fields: [idProductType], references: [idProductType])
+  storageType StorageType @relation(fields: [idStorageType], references: [idStorageType])
+
+  @@id([idProductType, idStorageType])
+  @@map("product_and_storage")
+}
+
+model AllowedStorageSubType {
+  idStorageType    Int @map("id_storage_type")
+  idStorageSubType Int @map("id_storage_subtype")
+
+  storageType    StorageType    @relation(fields: [idStorageType], references: [idStorageType])
+  storageSubType StorageSubType @relation(fields: [idStorageSubType], references: [idStorageSubType])
+
+  @@id([idStorageType, idStorageSubType])
+  @@map("storage_and_storage_subtype")
+}
+
+model Location {
+  idLocation       Int    @id @default(autoincrement()) @map("id_location")
+  barcode          String @unique @map("barcode") @db.VarChar(64)
+  labDisplay       String @map("lab_display") @db.VarChar(32)
+  idRoomType       Int    @map("id_room_type")
+  idProductType    Int    @map("id_product_type")
+  idStorageType    Int    @map("id_storage_type")
+  idStorageSubType Int    @map("id_storage_subtype")
+
+  roomType       RoomType       @relation(fields: [idRoomType], references: [idRoomType])
+  productType    ProductType    @relation(fields: [idProductType], references: [idProductType])
+  storageType    StorageType    @relation(fields: [idStorageType], references: [idStorageType])
+  storageSubType StorageSubType @relation(fields: [idStorageSubType], references: [idStorageSubType])
+  shelves        Shelf[]
+
+  @@map("locations")
+}
+
+model Shelf {
+  idShelf    Int    @id @default(autoincrement()) @map("id_shelf")
+  barcode    String @unique @map("barcode") @db.VarChar(64)
+  idLocation Int    @map("id_location")
+
+  location Location @relation(fields: [idLocation], references: [idLocation])
+  box      Box[]
+
+  @@map("shelves")
+}
+
+model Box {
+  idBox   Int    @id @default(autoincrement()) @map("id_box")
+  barcode String @unique @map("barcode") @db.VarChar(64)
+  idShelf Int    @map("id_shelf")
+
+  shelf Shelf @relation(fields: [idShelf], references: [idShelf])
+
+  @@map("boxes")
+}
+
+model MutationLog {
+  idMutationLog Int      @id @default(autoincrement()) @map("id_mutation_log")
+  modifiedBy    String   @map("modified_by")
+  modifiedOn    DateTime @default(now()) @map("modified_on")
+  tableName     String   @map("table_name") @db.VarChar(32)
+  tableId       Int      @map("table_id")
+  columnName    String?  @map("column_name") @db.VarChar(32)
+  oldValue      String   @map("old_value")
+  newValue      String   @map("new_value")
+  action        String   @map("action") @db.VarChar(32)
+
+  @@map("mutation_log")
 }

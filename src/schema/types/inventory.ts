@@ -1,23 +1,23 @@
 import {builder} from "../builder";
 import {z} from 'zod';
 
-builder.prismaObject('Inventory', {
-  name: 'Inventory',
+builder.prismaObject('Location', {
+  name: 'Location',
   fields: (t: any) => ({
-    id: t.exposeID('id_storage'),
+    idLocation: t.exposeID('idLocation'),
     barcode: t.exposeString('barcode'),
   }),
 });
 
 builder.queryType({
   fields: (t) => ({
-    inventoryList: t.prismaField({
-      type: ['Inventory'],
+    locations: t.prismaField({
+      type: ['Location'],
       authScopes: {
         isCosec: true,
       },
       resolve: async (query, root, args, ctx: any, info) => {
-        return ctx.prisma.inventory.findMany();
+        return ctx.prisma.location.findMany();
       },
     }),
   }),
@@ -25,7 +25,7 @@ builder.queryType({
 
 builder.mutationType({
   fields: (t) => ({
-    createInventory: t.boolean({
+    createLocation: t.boolean({
       authScopes: {
         isCosec: true,
       },
@@ -36,7 +36,7 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        await ctx.prisma.inventory.create({
+        await ctx.prisma.location.create({
           data: {
             barcode: args.barcode!,
           },
@@ -44,7 +44,7 @@ builder.mutationType({
         return true;
       },
     }),
-    updateInventory: t.boolean({
+    updateLocation: t.boolean({
       authScopes: {
         isCosec: true,
       },
@@ -57,7 +57,7 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        await ctx.prisma.inventory.update({
+        await ctx.prisma.location.update({
           where: { id_storage: args.id },
           data: {
             barcode: args.barcode!,
