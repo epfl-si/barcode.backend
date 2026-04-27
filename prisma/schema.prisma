@@ -17,75 +17,72 @@ datasource db {
 }
 
 model RoomType {
-  idRoomType Int    @id @default(autoincrement()) @map("id_room_type")
-  roomType   String @unique @map("room_type") @db.VarChar(64)
+  idRoomType   Int    @id @default(autoincrement()) @map("id_room_type")
+  roomTypeName String @unique @map("room_type_name") @db.VarChar(64)
 
-  locations Location[]
+  storages         Storage[]
+  allowedTypeValue AllowedTypeValue[]
 
   @@map("room_type")
 }
 
 model ProductType {
-  idProductType Int    @id @default(autoincrement()) @map("id_product_type")
-  productType   String @unique @map("product_type") @db.VarChar(64)
+  idProductType   Int    @id @default(autoincrement()) @map("id_product_type")
+  productTypeName String @unique @map("product_type_name") @db.VarChar(64)
 
-  allowedProductStorage AllowedProductStorage[]
-  locations             Location[]
+  storages         Storage[]
+  allowedTypeValue AllowedTypeValue[]
 
   @@map("product_type")
 }
 
 model StorageType {
-  idStorageType Int    @id @default(autoincrement()) @map("id_storage_type")
-  storageType   String @unique @map("storage_type") @db.VarChar(64)
+  idStorageType   Int    @id @default(autoincrement()) @map("id_storage_type")
+  storageTypeName String @unique @map("storage_type_name") @db.VarChar(64)
 
-  allowedProductStorage AllowedProductStorage[]
-  allowedStorageSubType AllowedStorageSubType[]
-  locations             Location[]
+  allowedTypeValue AllowedTypeValue[]
+  storages         Storage[]
 
   @@map("storage_type")
 }
 
 model StorageSubType {
-  idStorageSubType Int    @id @default(autoincrement()) @map("id_storage_subtype")
-  storageSubType   String @unique @map("storage_subtype") @db.VarChar(64)
+  idStorageSubType   Int    @id @default(autoincrement()) @map("id_storage_subtype")
+  storageSubTypeName String @unique @map("storage_subtype_name") @db.VarChar(64)
 
-  allowedStorageSubType AllowedStorageSubType[]
-  locations             Location[]
+  allowedTypeValue AllowedTypeValue[]
+  storages         Storage[]
 
   @@map("storage_subtype")
 }
 
-model AllowedProductStorage {
-  idProductType Int @map("id_product_type")
-  idStorageType Int @map("id_storage_type")
-
-  productType ProductType @relation(fields: [idProductType], references: [idProductType])
-  storageType StorageType @relation(fields: [idStorageType], references: [idStorageType])
-
-  @@id([idProductType, idStorageType])
-  @@map("product_and_storage")
-}
-
-model AllowedStorageSubType {
+model AllowedTypeValue {
+  idRoomType       Int @map("id_room_type")
+  idProductType    Int @map("id_product_type")
   idStorageType    Int @map("id_storage_type")
   idStorageSubType Int @map("id_storage_subtype")
 
+  roomType       RoomType       @relation(fields: [idRoomType], references: [idRoomType])
+  productType    ProductType    @relation(fields: [idProductType], references: [idProductType])
   storageType    StorageType    @relation(fields: [idStorageType], references: [idStorageType])
   storageSubType StorageSubType @relation(fields: [idStorageSubType], references: [idStorageSubType])
 
-  @@id([idStorageType, idStorageSubType])
-  @@map("storage_and_storage_subtype")
+  @@id([idRoomType, idProductType, idStorageType, idStorageSubType])
+  @@map("allowed_type_values")
 }
 
-model Location {
-  idLocation       Int    @id @default(autoincrement()) @map("id_location")
-  barcode          String @unique @map("barcode") @db.VarChar(64)
-  labDisplay       String @map("lab_display") @db.VarChar(32)
-  idRoomType       Int    @map("id_room_type")
-  idProductType    Int    @map("id_product_type")
-  idStorageType    Int    @map("id_storage_type")
-  idStorageSubType Int    @map("id_storage_subtype")
+model Storage {
+  idStorage        Int      @id @default(autoincrement()) @map("id_storage")
+  barcode          String   @unique @map("barcode") @db.VarChar(64)
+  labDisplay       String   @map("lab_display") @db.VarChar(32)
+  idRoomType       Int      @map("id_room_type")
+  idProductType    Int      @map("id_product_type")
+  idStorageType    Int      @map("id_storage_type")
+  idStorageSubType Int      @map("id_storage_subtype")
+  createdBy        String   @map("created_by")
+  createdOn        DateTime @default(now()) @map("created_on")
+  deletedBy        String   @map("deleted_by")
+  deletedOn        DateTime @map("deleted_on")
 
   roomType       RoomType       @relation(fields: [idRoomType], references: [idRoomType])
   productType    ProductType    @relation(fields: [idProductType], references: [idProductType])
@@ -93,24 +90,32 @@ model Location {
   storageSubType StorageSubType @relation(fields: [idStorageSubType], references: [idStorageSubType])
   shelves        Shelf[]
 
-  @@map("locations")
+  @@map("storages")
 }
 
 model Shelf {
-  idShelf    Int    @id @default(autoincrement()) @map("id_shelf")
-  barcode    String @unique @map("barcode") @db.VarChar(64)
-  idLocation Int    @map("id_location")
+  idShelf   Int      @id @default(autoincrement()) @map("id_shelf")
+  barcode   String   @unique @map("barcode") @db.VarChar(64)
+  idStorage Int      @map("id_storage")
+  createdBy String   @map("created_by")
+  createdOn DateTime @default(now()) @map("created_on")
+  deletedBy String   @map("deleted_by")
+  deletedOn DateTime @map("deleted_on")
 
-  location Location @relation(fields: [idLocation], references: [idLocation])
-  box      Box[]
+  storage Storage @relation(fields: [idStorage], references: [idStorage])
+  box     Box[]
 
   @@map("shelves")
 }
 
 model Box {
-  idBox   Int    @id @default(autoincrement()) @map("id_box")
-  barcode String @unique @map("barcode") @db.VarChar(64)
-  idShelf Int    @map("id_shelf")
+  idBox     Int      @id @default(autoincrement()) @map("id_box")
+  barcode   String   @unique @map("barcode") @db.VarChar(64)
+  idShelf   Int      @map("id_shelf")
+  createdBy String   @map("created_by")
+  createdOn DateTime @default(now()) @map("created_on")
+  deletedBy String   @map("deleted_by")
+  deletedOn DateTime @map("deleted_on")
 
   shelf Shelf @relation(fields: [idShelf], references: [idShelf])
 

@@ -1,10 +1,10 @@
 import {builder} from "../builder";
 import {z} from 'zod';
 
-builder.prismaObject('Location', {
-  name: 'Location',
+builder.prismaObject('Storage', {
+  name: 'Storage',
   fields: (t: any) => ({
-    idLocation: t.exposeID('idLocation'),
+    idStorage: t.exposeID('idStorage'),
     barcode: t.exposeString('barcode'),
   }),
 });
@@ -12,7 +12,7 @@ builder.prismaObject('Location', {
 builder.queryType({
   fields: (t) => ({
     locations: t.prismaField({
-      type: ['Location'],
+      type: ['Storage'],
       authScopes: {
         isCosec: true,
       },
@@ -25,7 +25,7 @@ builder.queryType({
 
 builder.mutationType({
   fields: (t) => ({
-    createLocation: t.boolean({
+    createStorage: t.boolean({
       authScopes: {
         isCosec: true,
       },
@@ -44,7 +44,7 @@ builder.mutationType({
         return true;
       },
     }),
-    updateLocation: t.boolean({
+    updateStorage: t.boolean({
       authScopes: {
         isCosec: true,
       },
