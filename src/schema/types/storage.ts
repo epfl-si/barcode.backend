@@ -13,7 +13,7 @@ builder.queryType({
     storages: t.prismaField({
       type: ['Storage'],
       authScopes: {
-        isCosec: true,
+        needPermission: 'canReadStorage'
       },
       resolve: async (query, root, args, ctx: any, info) => {
         return ctx.prisma.storage.findMany();
@@ -26,7 +26,7 @@ builder.mutationType({
   fields: (t) => ({
     createStorage: t.boolean({
       authScopes: {
-        isCosec: true,
+        needPermission: 'canCreateStorage'
       },
       args: {
         barcode: t.arg.string(),
