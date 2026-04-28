@@ -44,27 +44,5 @@ builder.mutationType({
         return true;
       },
     }),
-    updateStorage: t.boolean({
-      authScopes: {
-        isCosec: true,
-      },
-      args: {
-        id: t.arg.int(),
-        barcode: t.arg.string(),
-      },
-      validate: z.object({
-        id: z.int(),
-        barcode: z.string().nonempty(),
-      }),
-      resolve: async (root, args, ctx: any) => {
-        await ctx.prisma.location.update({
-          where: { id_storage: args.id },
-          data: {
-            barcode: args.barcode!,
-          },
-        });
-        return true;
-      },
-    }),
   }),
 });
