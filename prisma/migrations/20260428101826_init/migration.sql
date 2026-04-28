@@ -36,6 +36,8 @@ CREATE TABLE "allowed_type_values" (
     "id_product_type" INTEGER NOT NULL,
     "id_storage_type" INTEGER NOT NULL,
     "id_storage_subtype" INTEGER NOT NULL,
+    "allows_shelves" BOOLEAN NOT NULL DEFAULT true,
+    "allows_boxes" BOOLEAN NOT NULL DEFAULT true,
 
     CONSTRAINT "allowed_type_values_pkey" PRIMARY KEY ("id_room_type","id_product_type","id_storage_type","id_storage_subtype")
 );

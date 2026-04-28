@@ -57,10 +57,12 @@ model StorageSubType {
 }
 
 model AllowedTypeValue {
-  idRoomType       Int @map("id_room_type")
-  idProductType    Int @map("id_product_type")
-  idStorageType    Int @map("id_storage_type")
-  idStorageSubType Int @map("id_storage_subtype")
+  idRoomType       Int     @map("id_room_type")
+  idProductType    Int     @map("id_product_type")
+  idStorageType    Int     @map("id_storage_type")
+  idStorageSubType Int     @map("id_storage_subtype")
+  allowsShelves    Boolean @default(true) @map("allows_shelves")
+  allowsBoxes      Boolean @default(true) @map("allows_boxes")
 
   roomType       RoomType       @relation(fields: [idRoomType], references: [idRoomType])
   productType    ProductType    @relation(fields: [idProductType], references: [idProductType])
