@@ -5,12 +5,14 @@ import {prisma} from "./prisma";
 import ValidationPlugin from '@pothos/plugin-validation';
 import ScopeAuthPlugin from '@pothos/plugin-scope-auth';
 
+type BooleanKeys<T> = {
+  [K in keyof T]-?: NonNullable<T[K]> extends boolean ? K : never
+}[keyof T];
+
 export const builder = new SchemaBuilder<{
   PrismaTypes: PrismaTypes; // This gives the builder all the type information about your prisma schema
   AuthScopes: {
-    isAdmin: boolean;
-    isCosec: boolean;
-    isReadOnly: boolean;
+    needPermission: BooleanKeys<UserInfo>;
   };
 }>({
   plugins: [PrismaPlugin, ValidationPlugin, ScopeAuthPlugin],
@@ -28,9 +30,7 @@ export const builder = new SchemaBuilder<{
     authorizeOnSubscribe: true,
     // scope initializer, create the scopes and scope loaders for each request
     authScopes: async (context: any) => ({
-      isAdmin: () => context.user.isAdmin,
-      isCosec: () => context.user.isCosec,
-      isReadOnly: () => context.user.isReadOnly,
+      needPermission: (perm) => context.user[perm],
     }),
   },
 });
