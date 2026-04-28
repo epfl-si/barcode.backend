@@ -51,8 +51,8 @@ CREATE TABLE "storages" (
     "id_storage_subtype" INTEGER NOT NULL,
     "created_by" TEXT NOT NULL,
     "created_on" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_by" TEXT NOT NULL,
-    "deleted_on" TIMESTAMP(3) NOT NULL,
+    "deleted_by" TEXT,
+    "deleted_on" TIMESTAMP(3),
 
     CONSTRAINT "storages_pkey" PRIMARY KEY ("id_storage")
 );
@@ -64,8 +64,8 @@ CREATE TABLE "shelves" (
     "id_storage" INTEGER NOT NULL,
     "created_by" TEXT NOT NULL,
     "created_on" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_by" TEXT NOT NULL,
-    "deleted_on" TIMESTAMP(3) NOT NULL,
+    "deleted_by" TEXT,
+    "deleted_on" TIMESTAMP(3),
 
     CONSTRAINT "shelves_pkey" PRIMARY KEY ("id_shelf")
 );
@@ -77,8 +77,8 @@ CREATE TABLE "boxes" (
     "id_shelf" INTEGER NOT NULL,
     "created_by" TEXT NOT NULL,
     "created_on" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "deleted_by" TEXT NOT NULL,
-    "deleted_on" TIMESTAMP(3) NOT NULL,
+    "deleted_by" TEXT,
+    "deleted_on" TIMESTAMP(3),
 
     CONSTRAINT "boxes_pkey" PRIMARY KEY ("id_box")
 );

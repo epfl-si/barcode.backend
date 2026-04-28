@@ -72,17 +72,17 @@ model AllowedTypeValue {
 }
 
 model Storage {
-  idStorage        Int      @id @default(autoincrement()) @map("id_storage")
-  barcode          String   @unique @map("barcode") @db.VarChar(64)
-  labDisplay       String   @map("lab_display") @db.VarChar(32)
-  idRoomType       Int      @map("id_room_type")
-  idProductType    Int      @map("id_product_type")
-  idStorageType    Int      @map("id_storage_type")
-  idStorageSubType Int      @map("id_storage_subtype")
-  createdBy        String   @map("created_by")
-  createdOn        DateTime @default(now()) @map("created_on")
-  deletedBy        String   @map("deleted_by")
-  deletedOn        DateTime @map("deleted_on")
+  idStorage        Int       @id @default(autoincrement()) @map("id_storage")
+  barcode          String    @unique @map("barcode") @db.VarChar(64)
+  labDisplay       String    @map("lab_display") @db.VarChar(32)
+  idRoomType       Int       @map("id_room_type")
+  idProductType    Int       @map("id_product_type")
+  idStorageType    Int       @map("id_storage_type")
+  idStorageSubType Int       @map("id_storage_subtype")
+  createdBy        String    @map("created_by")
+  createdOn        DateTime  @default(now()) @map("created_on")
+  deletedBy        String?   @map("deleted_by")
+  deletedOn        DateTime? @map("deleted_on")
 
   roomType       RoomType       @relation(fields: [idRoomType], references: [idRoomType])
   productType    ProductType    @relation(fields: [idProductType], references: [idProductType])
@@ -94,13 +94,13 @@ model Storage {
 }
 
 model Shelf {
-  idShelf   Int      @id @default(autoincrement()) @map("id_shelf")
-  barcode   String   @unique @map("barcode") @db.VarChar(64)
-  idStorage Int      @map("id_storage")
-  createdBy String   @map("created_by")
-  createdOn DateTime @default(now()) @map("created_on")
-  deletedBy String   @map("deleted_by")
-  deletedOn DateTime @map("deleted_on")
+  idShelf   Int       @id @default(autoincrement()) @map("id_shelf")
+  barcode   String    @unique @map("barcode") @db.VarChar(64)
+  idStorage Int       @map("id_storage")
+  createdBy String    @map("created_by")
+  createdOn DateTime  @default(now()) @map("created_on")
+  deletedBy String?   @map("deleted_by")
+  deletedOn DateTime? @map("deleted_on")
 
   storage Storage @relation(fields: [idStorage], references: [idStorage])
   box     Box[]
@@ -109,13 +109,13 @@ model Shelf {
 }
 
 model Box {
-  idBox     Int      @id @default(autoincrement()) @map("id_box")
-  barcode   String   @unique @map("barcode") @db.VarChar(64)
-  idShelf   Int      @map("id_shelf")
-  createdBy String   @map("created_by")
-  createdOn DateTime @default(now()) @map("created_on")
-  deletedBy String   @map("deleted_by")
-  deletedOn DateTime @map("deleted_on")
+  idBox     Int       @id @default(autoincrement()) @map("id_box")
+  barcode   String    @unique @map("barcode") @db.VarChar(64)
+  idShelf   Int       @map("id_shelf")
+  createdBy String    @map("created_by")
+  createdOn DateTime  @default(now()) @map("created_on")
+  deletedBy String?   @map("deleted_by")
+  deletedOn DateTime? @map("deleted_on")
 
   shelf Shelf @relation(fields: [idShelf], references: [idShelf])
 
