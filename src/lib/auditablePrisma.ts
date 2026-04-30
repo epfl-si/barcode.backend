@@ -50,15 +50,15 @@ export function getPrismaForUser(user: { username: string }) {
             ? Object.keys(source).find((k) => k.startsWith('id'))
             : undefined;
           const id = idKey ? source[idKey] : null;
-          await prisma.mutation_logs.create({
+          await prisma.mutationLog.create({
             data: {
-              modified_by: user.username,
-              modified_on: new Date(),
-              table_name: model,
-              table_id: id,
-              column_name: '',
-              old_value: oldValue ? JSON.stringify(oldValue) : '',
-              new_value: operation === 'delete' || operation === 'deleteMany'
+              modifiedBy: user.username,
+              modifiedOn: new Date(),
+              tableName: model,
+              tableId: id,
+              columnName: '',
+              oldValue: oldValue ? JSON.stringify(oldValue) : '',
+              newValue: operation === 'delete' || operation === 'deleteMany'
                   ? '' : JSON.stringify(newValue),
               action: operation.toUpperCase(),
             },

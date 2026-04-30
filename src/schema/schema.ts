@@ -25,6 +25,6 @@ builder.queryType({
   },
 });
 
-import './types/inventory';
+import './types/storage';
 
 export const schema = builder.toSchema();

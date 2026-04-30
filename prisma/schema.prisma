@@ -16,21 +16,137 @@ datasource db {
   provider = "postgresql"
 }
 
-model Inventory {
-  id_storage Int    @id @default(autoincrement())
-  barcode    String @unique(map: "barcode") @db.VarChar(80)
+model RoomType {
+  id        Int    @id @default(autoincrement()) @map("id")
+  shortName String @unique @map("short_name") @db.VarChar(3)
+  name      String @unique @map("name") @db.VarChar(64)
 
-  @@map("inventory")
+  allowedTypeValue AllowedTypeValue[]
+  storages         Storage[]
+
+  @@map("room_type")
 }
 
-model mutation_logs {
-  id_mutation_logs Int      @id @default(autoincrement())
-  modified_by      String
-  modified_on      DateTime @default(now())
-  table_name       String
-  table_id         Int
-  column_name      String?
-  old_value        String
-  new_value        String
-  action           String
+model ProductType {
+  id        Int    @id @default(autoincrement()) @map("id")
+  shortName String @unique @map("short_name") @db.VarChar(3)
+  name      String @unique @map("name") @db.VarChar(64)
+
+  allowedTypeValue AllowedTypeValue[]
+  storages         Storage[]
+
+  @@map("product_type")
+}
+
+model StorageType {
+  id        Int    @id @default(autoincrement()) @map("id")
+  shortName String @unique @map("short_name") @db.VarChar(3)
+  name      String @unique @map("name") @db.VarChar(64)
+
+  allowedTypeValue AllowedTypeValue[]
+  storages         Storage[]
+
+  @@map("storage_type")
+}
+
+model StorageSubType {
+  id        Int    @id @default(autoincrement()) @map("id")
+  shortName String @unique @map("short_name") @db.VarChar(3)
+  name      String @unique @map("name") @db.VarChar(64)
+
+  allowedTypeValue AllowedTypeValue[]
+  storages         Storage[]
+
+  @@map("storage_subtype")
+}
+
+model AllowedTypeValue {
+  idRoomType       Int @map("id_room_type")
+  idProductType    Int @map("id_product_type")
+  idStorageType    Int @map("id_storage_type")
+  idStorageSubType Int @map("id_storage_subtype")
+
+  allowsShelves Boolean @default(true) @map("allows_shelves")
+  allowsBoxes   Boolean @default(true) @map("allows_boxes")
+
+  roomType       RoomType       @relation(fields: [idRoomType], references: [id])
+  productType    ProductType    @relation(fields: [idProductType], references: [id])
+  storageType    StorageType    @relation(fields: [idStorageType], references: [id])
+  storageSubType StorageSubType @relation(fields: [idStorageSubType], references: [id])
+
+  @@id([idRoomType, idProductType, idStorageType, idStorageSubType])
+  @@map("allowed_type_values")
+}
+
+model Storage {
+  id         Int    @id @default(autoincrement()) @map("id")
+  barcode    String @unique @map("barcode") @db.VarChar(64)
+  numStorage Int    @map("num_storage")
+
+  roomId           Int    @map("room_id")
+  roomDisplay      String @map("room_display") @db.VarChar(32)
+  idRoomType       Int    @map("id_room_type")
+  idProductType    Int    @map("id_product_type")
+  idStorageType    Int    @map("id_storage_type")
+  idStorageSubType Int    @map("id_storage_subtype")
+
+  createdBy String    @map("created_by")
+  createdOn DateTime  @default(now()) @map("created_on")
+  deletedBy String?   @map("deleted_by")
+  deletedOn DateTime? @map("deleted_on")
+
+  roomType       RoomType       @relation(fields: [idRoomType], references: [id])
+  productType    ProductType    @relation(fields: [idProductType], references: [id])
+  storageType    StorageType    @relation(fields: [idStorageType], references: [id])
+  storageSubType StorageSubType @relation(fields: [idStorageSubType], references: [id])
+  shelves        Shelf[]
+
+  @@map("storages")
+}
+
+model Shelf {
+  id        Int    @id @default(autoincrement()) @map("id")
+  idStorage Int    @map("id_storage")
+  barcode   String @unique @map("barcode") @db.VarChar(64)
+  numShelf  Int    @map("num_shelf")
+
+  createdBy String    @map("created_by")
+  createdOn DateTime  @default(now()) @map("created_on")
+  deletedBy String?   @map("deleted_by")
+  deletedOn DateTime? @map("deleted_on")
+
+  storage Storage @relation(fields: [idStorage], references: [id])
+  box     Box[]
+
+  @@map("shelves")
+}
+
+model Box {
+  id      Int    @id @default(autoincrement()) @map("id")
+  idShelf Int    @map("id_shelf")
+  barcode String @unique @map("barcode") @db.VarChar(64)
+  numBox  Int    @map("num_box")
+
+  createdBy String    @map("created_by")
+  createdOn DateTime  @default(now()) @map("created_on")
+  deletedBy String?   @map("deleted_by")
+  deletedOn DateTime? @map("deleted_on")
+
+  shelf Shelf @relation(fields: [idShelf], references: [id])
+
+  @@map("boxes")
+}
+
+model MutationLog {
+  id         Int      @id @default(autoincrement()) @map("id")
+  modifiedBy String   @map("modified_by")
+  modifiedOn DateTime @default(now()) @map("modified_on")
+  tableName  String   @map("table_name") @db.VarChar(32)
+  tableId    Int      @map("table_id")
+  columnName String?  @map("column_name") @db.VarChar(32)
+  oldValue   String   @map("old_value")
+  newValue   String   @map("new_value")
+  action     String   @map("action") @db.VarChar(32)
+
+  @@map("mutation_log")
 }
