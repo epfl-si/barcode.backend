@@ -5,6 +5,7 @@ const wellKnowsErrors: Record<string, string> = {
   BAD_REQUEST:                  "The operation includes invalid variables",
   P2003:                        'Is not possible to perform this action because of some relationship',
   P2002:                        'An element with this name appears to already exist',
+  P2025:                        'No record was found for a delete',
   FNP:                          'Filename not permitted'
 }
 
