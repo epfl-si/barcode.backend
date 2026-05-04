@@ -116,7 +116,7 @@ model Shelf {
   deletedOn DateTime? @map("deleted_on")
 
   storage Storage @relation(fields: [idStorage], references: [id])
-  box     Box[]
+  boxes   Box[]
 
   @@map("shelves")
 }
