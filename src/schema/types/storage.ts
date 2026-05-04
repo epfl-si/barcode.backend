@@ -57,22 +57,6 @@ builder.mutationType({
         return true;
       },
     }),
-    updateStorage: t.boolean({
-      authScopes: {
-        needPermission: 'canCreateStorage'
-      },
-      args: {
-        // TODO add all other fields
-      },
-      validate: z.object({
-        barcode: z.string().nonempty(),
-        // TODO add all other fields
-      }),
-      resolve: async (root, args, ctx: any) => {
-        // TODO create boxes and shelves in cascade after saving storages
-        return true;
-      },
-    }),
     deleteStorage: t.boolean({
       authScopes: {
         needPermission: 'canDeleteStorage'
