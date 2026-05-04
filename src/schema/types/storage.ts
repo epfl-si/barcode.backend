@@ -5,6 +5,19 @@ builder.prismaObject('Storage', {
   name: 'Storage',
   fields: (t: any) => ({
     barcode: t.exposeString('barcode'),
+    roomDisplay: t.exposeString('roomDisplay'),
+    roomType: t.relation('roomType'),
+    productType: t.relation('productType'),
+    storageType: t.relation('storageType'),
+    storageSubType: t.relation('storageSubType'),
+    createdBy: t.exposeString('createdBy'),
+    // createdOn: t.expose('createdOn', {
+    //   type: Date,
+    // }),
+    deletedBy: t.exposeString('deletedBy'),
+    // deletedOn: t.expose('deletedOn', {
+    //   type: Date,
+    // }),
   }),
 });
 

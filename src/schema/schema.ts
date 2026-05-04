@@ -26,5 +26,9 @@ builder.queryType({
 });
 
 import './types/storage';
+import './types/roomType';
+import './types/productType';
+import './types/storageType';
+import './types/storageSubType';
 
 export const schema = builder.toSchema();
