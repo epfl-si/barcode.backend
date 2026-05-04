@@ -13,7 +13,8 @@ builder.prismaObject('Storage', {
     createdBy: t.exposeString('createdBy'),
     createdOn: t.expose('createdOn', { type: 'DateTime' }),
     deletedBy: t.exposeString('deletedBy'),
-    deletedOn: t.expose('deletedOn', { type: 'DateTime', nullable: true })
+    deletedOn: t.expose('deletedOn', { type: 'DateTime', nullable: true }),
+    shelves: t.relation('shelves')
   }),
 });
 
@@ -39,13 +40,53 @@ builder.mutationType({
       },
       args: {
         barcode: t.arg.string(),
+        // TODO add all other fields
+      },
+      validate: z.object({
+        barcode: z.string().nonempty(),
+        // TODO add all other fields
+      }),
+      resolve: async (root, args, ctx: any) => {
+        await ctx.prisma.storage.create({
+          data: {
+            barcode: args.barcode!,
+            // TODO add all other fields
+          },
+        });
+        // TODO create boxes and shelves in cascade after saving storages
+        return true;
+      },
+    }),
+    updateStorage: t.boolean({
+      authScopes: {
+        needPermission: 'canCreateStorage'
+      },
+      args: {
+        // TODO add all other fields
+      },
+      validate: z.object({
+        barcode: z.string().nonempty(),
+        // TODO add all other fields
+      }),
+      resolve: async (root, args, ctx: any) => {
+        // TODO create boxes and shelves in cascade after saving storages
+        return true;
+      },
+    }),
+    deleteStorage: t.boolean({
+      authScopes: {
+        needPermission: 'canDeleteStorage'
+      },
+      args: {
+        barcode: t.arg.string(),
       },
       validate: z.object({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        await ctx.prisma.storage.create({
-          data: {
+        // TODO delete boxes and shelves in cascade before deleting storages
+        await ctx.prisma.storage.delete({
+          where: {
             barcode: args.barcode!,
           },
         });
