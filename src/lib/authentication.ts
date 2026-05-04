@@ -41,6 +41,12 @@ export async function authenticateFromBearerToken(req: Request<{}, any, any, Par
   user.canReadStorage = hasRoleAdmin || hasRoleCosec || hasRoleReadOnly;
   user.canCreateStorage = hasRoleAdmin || hasRoleCosec;
   user.canDeleteStorage = hasRoleAdmin || hasRoleCosec;
+  user.canReadShelf = hasRoleAdmin || hasRoleCosec || hasRoleReadOnly;
+  user.canCreateShelf = hasRoleAdmin || hasRoleCosec;
+  user.canDeleteShelf = hasRoleAdmin || hasRoleCosec;
+  user.canReadBox = hasRoleAdmin || hasRoleCosec || hasRoleReadOnly;
+  user.canCreateBox = hasRoleAdmin || hasRoleCosec;
+  user.canDeleteBox = hasRoleAdmin || hasRoleCosec;
 
   return user;
 }
