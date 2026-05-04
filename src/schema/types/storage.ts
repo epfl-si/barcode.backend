@@ -11,13 +11,9 @@ builder.prismaObject('Storage', {
     storageType: t.relation('storageType'),
     storageSubType: t.relation('storageSubType'),
     createdBy: t.exposeString('createdBy'),
-    // createdOn: t.expose('createdOn', {
-    //   type: Date,
-    // }),
+    createdOn: t.expose('createdOn', { type: 'DateTime' }),
     deletedBy: t.exposeString('deletedBy'),
-    // deletedOn: t.expose('deletedOn', {
-    //   type: Date,
-    // }),
+    deletedOn: t.expose('deletedOn', { type: 'DateTime', nullable: true })
   }),
 });
 

@@ -4,6 +4,7 @@ import PrismaTypes, {getDatamodel} from "../../generated/pothos-prisma-types";
 import {prisma} from "./prisma";
 import ValidationPlugin from '@pothos/plugin-validation';
 import ScopeAuthPlugin from '@pothos/plugin-scope-auth';
+import {DateTimeResolver} from "graphql-scalars";
 
 type BooleanKeys<T> = {
   [K in keyof T]-?: NonNullable<T[K]> extends boolean ? K : never
@@ -13,6 +14,12 @@ export const builder = new SchemaBuilder<{
   PrismaTypes: PrismaTypes; // This gives the builder all the type information about your prisma schema
   AuthScopes: {
     needPermission: BooleanKeys<UserInfo>;
+  };
+  Scalars: {
+    DateTime: {
+      Input: Date;
+      Output: Date;
+    };
   };
 }>({
   plugins: [PrismaPlugin, ValidationPlugin, ScopeAuthPlugin],
@@ -34,3 +41,5 @@ export const builder = new SchemaBuilder<{
     }),
   },
 });
+
+builder.addScalarType('DateTime', DateTimeResolver, {});
