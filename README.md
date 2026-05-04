@@ -1,4 +1,4 @@
-# Barcode backend
+# LIL backend
 
 ## Install Prisma
 https://www.prisma.io/docs/prisma-orm/quickstart/mysql

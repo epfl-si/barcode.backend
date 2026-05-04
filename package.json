@@ -1,5 +1,5 @@
 {
-  "name": "barcode-backend",
+  "name": "lil-backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -10,16 +10,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/epfl-si/barcode.backend.git"
+    "url": "git+https://github.com/epfl-si/lil.backend.git"
   },
   "keywords": [],
   "author": "EPFL ISAS-FSD",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/epfl-si/barcode.backend/issues"
+    "url": "https://github.com/epfl-si/lil.backend/issues"
   },
-  "homepage": "https://github.com/epfl-si/barcode.backend#readme",
+  "homepage": "https://github.com/epfl-si/lil.backend#readme",
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
