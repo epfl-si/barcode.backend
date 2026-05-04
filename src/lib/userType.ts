@@ -7,4 +7,10 @@ interface UserInfo {
   canReadStorage?: boolean;
   canCreateStorage?: boolean;
   canDeleteStorage?: boolean;
+  canReadShelf?: boolean;
+  canCreateShelf?: boolean;
+  canDeleteShelf?: boolean;
+  canReadBox?: boolean;
+  canCreateBox?: boolean;
+  canDeleteBox?: boolean;
 }

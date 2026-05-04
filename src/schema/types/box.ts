@@ -12,7 +12,7 @@ builder.mutationType({
   fields: (t) => ({
     createBox: t.boolean({
       authScopes: {
-        needPermission: 'canCreateStorage'
+        needPermission: 'canCreateBox'
       },
       args: {
         // TODO add shelf barcode
@@ -33,7 +33,7 @@ builder.mutationType({
     }),
     deleteBox: t.boolean({
       authScopes: {
-        needPermission: 'canDeleteStorage'
+        needPermission: 'canDeleteBox'
       },
       args: {
         barcode: t.arg.string(),
