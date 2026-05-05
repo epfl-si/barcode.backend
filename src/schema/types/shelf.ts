@@ -23,13 +23,7 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        await ctx.prisma.shelf.create({
-          data: {
-            // TODO add id storage after get it from barcode
-            barcode: args.barcode!,
-          },
-        });
-        // TODO create boxes in cascade after saving shelves
+        await createShelf(ctx, args.barcode!);
         return true;
       },
     }),
@@ -44,14 +38,28 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        // TODO delete boxes in cascade before deleting storages
-        await ctx.prisma.shelf.delete({
-          where: {
-            barcode: args.barcode!,
-          },
-        });
+        await deleteShelf(ctx, args.barcode!);
         return true;
       },
     }),
   }),
 });
+
+async function createShelf (context: any, barcode: string) {
+  await context.prisma.shelf.create({
+    data: {
+      // TODO add id storage after get it from barcode
+      barcode: barcode
+    },
+  });
+  // TODO create boxes in cascade after saving shelves
+}
+
+async function deleteShelf (context: any, barcode: string) {
+  // TODO delete boxes in cascade before deleting storages
+  await context.prisma.shelf.delete({
+    where: {
+      barcode: barcode
+    },
+  });
+}

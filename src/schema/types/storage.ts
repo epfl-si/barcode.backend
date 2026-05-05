@@ -47,13 +47,7 @@ builder.mutationType({
         // TODO add all other fields
       }),
       resolve: async (root, args, ctx: any) => {
-        await ctx.prisma.storage.create({
-          data: {
-            barcode: args.barcode!,
-            // TODO add all other fields
-          },
-        });
-        // TODO create boxes and shelves in cascade after saving storages
+        await createStorage(ctx, args.barcode!);
         return true;
       },
     }),
@@ -68,14 +62,29 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        // TODO delete boxes and shelves in cascade before deleting storages
-        await ctx.prisma.storage.delete({
-          where: {
-            barcode: args.barcode!,
-          },
-        });
+        await deleteStorage(ctx, args.barcode!);
         return true;
       },
     }),
   }),
 });
+
+
+async function createStorage (ctx: any, barcode: string) {
+  await ctx.prisma.storage.create({
+    data: {
+      barcode: barcode
+      // TODO add all other fields
+    },
+  });
+  // TODO create boxes and shelves in cascade after saving storages
+}
+
+async function deleteStorage (ctx: any, barcode: string) {
+  // TODO delete boxes and shelves in cascade before deleting storages
+  await ctx.prisma.storage.delete({
+    where: {
+      barcode: barcode
+    },
+  });
+}
