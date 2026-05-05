@@ -26,6 +26,8 @@ builder.queryType({
 });
 
 import './types/storage';
+import './types/shelf';
+import './types/box';
 import './types/roomType';
 import './types/productType';
 import './types/storageType';
