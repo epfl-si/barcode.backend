@@ -21,8 +21,8 @@ model RoomType {
   shortName String @unique @map("short_name") @db.VarChar(3)
   name      String @unique @map("name") @db.VarChar(64)
 
-  allowedTypeValue AllowedTypeValue[]
-  storages         Storage[]
+  allowedTypeValues AllowedTypeValue[]
+  storages          Storage[]
 
   @@map("room_type")
 }
@@ -32,8 +32,8 @@ model ProductType {
   shortName String @unique @map("short_name") @db.VarChar(3)
   name      String @unique @map("name") @db.VarChar(64)
 
-  allowedTypeValue AllowedTypeValue[]
-  storages         Storage[]
+  allowedTypeValues AllowedTypeValue[]
+  storages          Storage[]
 
   @@map("product_type")
 }
@@ -43,8 +43,8 @@ model StorageType {
   shortName String @unique @map("short_name") @db.VarChar(3)
   name      String @unique @map("name") @db.VarChar(64)
 
-  allowedTypeValue AllowedTypeValue[]
-  storages         Storage[]
+  allowedTypeValues AllowedTypeValue[]
+  storages          Storage[]
 
   @@map("storage_type")
 }
@@ -54,8 +54,8 @@ model StorageSubType {
   shortName String @unique @map("short_name") @db.VarChar(3)
   name      String @unique @map("name") @db.VarChar(64)
 
-  allowedTypeValue AllowedTypeValue[]
-  storages         Storage[]
+  allowedTypeValues AllowedTypeValue[]
+  storages          Storage[]
 
   @@map("storage_subtype")
 }
