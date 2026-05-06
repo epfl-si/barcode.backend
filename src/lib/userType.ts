@@ -13,4 +13,5 @@ interface UserInfo {
   canReadBox?: boolean;
   canCreateBox?: boolean;
   canDeleteBox?: boolean;
+  canReadTypes?: boolean;
 }
