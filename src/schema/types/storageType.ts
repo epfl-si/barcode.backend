@@ -3,7 +3,7 @@ import {builder} from "../builder";
 builder.prismaObject('StorageType', {
   name: 'StorageType',
   fields: (t: any) => ({
-    name: t.exposeString('name'),
+    symbol: t.exposeString('symbol'),
     shortName: t.exposeString('shortName')
   }),
 });
@@ -16,20 +16,20 @@ builder.queryType({
         needPermission: 'canReadTypes'
       },
       args: {
-        roomTypeShortName: t.arg.string(),
-        productTypeShortName: t.arg.string(),
+        roomSymbol: t.arg.string(),
+        productSymbol: t.arg.string(),
       },
       resolve: async (query, root, args, ctx: any, info) => {
-        if (args.roomTypeShortName && args.productTypeShortName) {
+        if (args.roomSymbol && args.productSymbol) {
           return await ctx.prisma.storageType.findMany({
             where: {
               allowedTypeValues: {
                 some: {
                   roomType: {
-                    shortName: args.roomTypeShortName
+                    symbol: args.roomSymbol
                   },
                   productType: {
-                    shortName: args.productTypeShortName
+                    symbol: args.productSymbol
                   }
                 }
               }

@@ -3,7 +3,7 @@ import {builder} from "../builder";
 builder.prismaObject('ProductType', {
   name: 'ProductType',
   fields: (t: any) => ({
-    name: t.exposeString('name'),
+    symbol: t.exposeString('symbol'),
     shortName: t.exposeString('shortName')
   }),
 });
@@ -16,16 +16,16 @@ builder.queryType({
         needPermission: 'canReadTypes'
       },
       args: {
-        roomTypeShortName: t.arg.string(),
+        roomSymbol: t.arg.string(),
       },
       resolve: async (query, root, args, ctx: any, info) => {
-        if (args.roomTypeShortName) {
+        if (args.roomSymbol) {
           return await ctx.prisma.productType.findMany({
             where: {
               allowedTypeValues: {
                 some: {
                   roomType: {
-                    shortName: args.roomTypeShortName
+                    symbol: args.roomSymbol
                   }
                 }
               }

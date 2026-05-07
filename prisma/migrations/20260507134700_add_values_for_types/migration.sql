@@ -1,29 +1,29 @@
 -- This is an empty migration.
 
-INSERT INTO room_type (name, short_name) VALUES ('Labo', 'L');
-INSERT INTO room_type (name, short_name) VALUES ('Receiving Location', 'T');
-INSERT INTO room_type (name, short_name) VALUES ('Stockroom', 'S');
-INSERT INTO room_type (name, short_name) VALUES ('Storeroom', 'R');
+INSERT INTO room_type (symbol, short_name) VALUES ('LABO', 'L');
+INSERT INTO room_type (symbol, short_name) VALUES ('RCVLC', 'T');
+INSERT INTO room_type (symbol, short_name) VALUES ('STKRM', 'S');
+INSERT INTO room_type (symbol, short_name) VALUES ('STRRM', 'R');
 
-insert into product_type (name, short_name) values ('Bouteille de gaz', 'G');
-insert into product_type (name, short_name) values ('Produit chimique', 'C');
-insert into product_type (name, short_name) values ('Autres Articles', 'A');
+insert into product_type (symbol, short_name) values ('GASBP', 'G');
+insert into product_type (symbol, short_name) values ('CHEMP', 'C');
+insert into product_type (symbol, short_name) values ('OTHER', 'A');
 
-insert into storage_type (name, short_name) values ('Armoire', 'A');
-insert into storage_type (name, short_name) values ('Boite à gants', 'B');
-insert into storage_type (name, short_name) values ('Congélateur', 'C');
-insert into storage_type (name, short_name) values ('Local extérieur', 'E');
-insert into storage_type (name, short_name) values ('Local intérieur', 'I');
-insert into storage_type (name, short_name) values ('Rayonnage', 'Y');
-insert into storage_type (name, short_name) values ('Réfrigérateur', 'R');
-insert into storage_type (name, short_name) values ('Autre', 'U');
+insert into storage_type (symbol, short_name) values ('ARMRE', 'A');
+insert into storage_type (symbol, short_name) values ('GLVBX', 'B');
+insert into storage_type (symbol, short_name) values ('FREEZ', 'C');
+insert into storage_type (symbol, short_name) values ('EXLOC', 'E');
+insert into storage_type (symbol, short_name) values ('INLOC', 'I');
+insert into storage_type (symbol, short_name) values ('SHLVG', 'Y');
+insert into storage_type (symbol, short_name) values ('FRDGE', 'R');
+insert into storage_type (symbol, short_name) values ('OTHER', 'U');
 
-insert into storage_subtype (name, short_name) values ('ATEX', 'A');
-insert into storage_subtype (name, short_name) values ('Résistant au feu (EI90)', 'R');
-insert into storage_subtype (name, short_name) values ('Standard', 'S');
-insert into storage_subtype (name, short_name) values ('Ventilé', 'V');
-insert into storage_subtype (name, short_name) values ('Ventilé et résistant au feu (EI90)', 'F');
-insert into storage_subtype (name, short_name) values ('Autre', 'X');
+insert into storage_subtype (symbol, short_name) values ('ATEX', 'A');
+insert into storage_subtype (symbol, short_name) values ('FR90', 'R');
+insert into storage_subtype (symbol, short_name) values ('STDRD', 'S');
+insert into storage_subtype (symbol, short_name) values ('VENTD', 'V');
+insert into storage_subtype (symbol, short_name) values ('VFR90', 'F');
+insert into storage_subtype (symbol, short_name) values ('OTHER', 'X');
 
 insert into allowed_type_values (id_room_type, id_product_type, id_storage_type, id_storage_subtype, allows_shelves, allows_boxes) values (1, 2, 1, 3, true, true);
 insert into allowed_type_values (id_room_type, id_product_type, id_storage_type, id_storage_subtype, allows_shelves, allows_boxes) values (1, 2, 1, 4, true, true);

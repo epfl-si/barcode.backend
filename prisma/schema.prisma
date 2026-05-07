@@ -19,7 +19,7 @@ datasource db {
 model RoomType {
   id        Int    @id @default(autoincrement()) @map("id")
   shortName String @unique @map("short_name") @db.VarChar(3)
-  name      String @unique @map("name") @db.VarChar(64)
+  symbol    String @unique @map("symbol") @db.VarChar(10)
 
   allowedTypeValues AllowedTypeValue[]
   storages          Storage[]
@@ -30,7 +30,7 @@ model RoomType {
 model ProductType {
   id        Int    @id @default(autoincrement()) @map("id")
   shortName String @unique @map("short_name") @db.VarChar(3)
-  name      String @unique @map("name") @db.VarChar(64)
+  symbol    String @unique @map("symbol") @db.VarChar(10)
 
   allowedTypeValues AllowedTypeValue[]
   storages          Storage[]
@@ -41,7 +41,7 @@ model ProductType {
 model StorageType {
   id        Int    @id @default(autoincrement()) @map("id")
   shortName String @unique @map("short_name") @db.VarChar(3)
-  name      String @unique @map("name") @db.VarChar(64)
+  symbol    String @unique @map("symbol") @db.VarChar(10)
 
   allowedTypeValues AllowedTypeValue[]
   storages          Storage[]
@@ -52,7 +52,7 @@ model StorageType {
 model StorageSubType {
   id        Int    @id @default(autoincrement()) @map("id")
   shortName String @unique @map("short_name") @db.VarChar(3)
-  name      String @unique @map("name") @db.VarChar(64)
+  symbol    String @unique @map("symbol") @db.VarChar(10)
 
   allowedTypeValues AllowedTypeValue[]
   storages          Storage[]
