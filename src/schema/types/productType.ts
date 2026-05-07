@@ -16,17 +16,15 @@ builder.queryType({
         needPermission: 'canReadTypes'
       },
       args: {
-        roomTypeShortName: t.arg.string(),
+        roomTypeId: t.arg.int(),
       },
       resolve: async (query, root, args, ctx: any, info) => {
-        if (args.roomTypeShortName) {
+        if (args.roomTypeId) {
           return await ctx.prisma.productType.findMany({
             where: {
               allowedTypeValues: {
                 some: {
-                  roomType: {
-                    shortName: args.roomTypeShortName
-                  }
+                  idRoomType: args.roomTypeId
                 }
               }
             },

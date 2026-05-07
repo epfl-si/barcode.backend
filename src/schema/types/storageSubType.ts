@@ -16,25 +16,19 @@ builder.queryType({
         needPermission: 'canReadTypes'
       },
       args: {
-        roomTypeShortName: t.arg.string(),
-        productTypeShortName: t.arg.string(),
-        storageTypeShortName: t.arg.string(),
+        roomTypeId: t.arg.int(),
+        productTypeId: t.arg.int(),
+        storageTypeId: t.arg.int(),
       },
       resolve: async (query, root, args, ctx: any, info) => {
-        if (args.roomTypeShortName && args.productTypeShortName && args.storageTypeShortName) {
+        if (args.roomTypeId && args.productTypeId && args.storageTypeId) {
           return await ctx.prisma.storageSubType.findMany({
             where: {
               allowedTypeValues: {
                 some: {
-                  roomType: {
-                    shortName: args.roomTypeShortName
-                  },
-                  productType: {
-                    shortName: args.productTypeShortName
-                  },
-                  storageType: {
-                    shortName: args.storageTypeShortName
-                  }
+                  idRoomType: args.roomTypeId,
+                  idProductType: args.productTypeId,
+                  idStorageType: args.storageTypeId
                 }
               }
             },
