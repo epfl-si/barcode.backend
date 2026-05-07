@@ -2,7 +2,7 @@
 CREATE TABLE "room_type" (
     "id" SERIAL NOT NULL,
     "short_name" VARCHAR(3) NOT NULL,
-    "name" VARCHAR(64) NOT NULL,
+    "symbol" VARCHAR(10) NOT NULL,
 
     CONSTRAINT "room_type_pkey" PRIMARY KEY ("id")
 );
@@ -11,7 +11,7 @@ CREATE TABLE "room_type" (
 CREATE TABLE "product_type" (
     "id" SERIAL NOT NULL,
     "short_name" VARCHAR(3) NOT NULL,
-    "name" VARCHAR(64) NOT NULL,
+    "symbol" VARCHAR(10) NOT NULL,
 
     CONSTRAINT "product_type_pkey" PRIMARY KEY ("id")
 );
@@ -20,7 +20,7 @@ CREATE TABLE "product_type" (
 CREATE TABLE "storage_type" (
     "id" SERIAL NOT NULL,
     "short_name" VARCHAR(3) NOT NULL,
-    "name" VARCHAR(64) NOT NULL,
+    "symbol" VARCHAR(10) NOT NULL,
 
     CONSTRAINT "storage_type_pkey" PRIMARY KEY ("id")
 );
@@ -29,7 +29,7 @@ CREATE TABLE "storage_type" (
 CREATE TABLE "storage_subtype" (
     "id" SERIAL NOT NULL,
     "short_name" VARCHAR(3) NOT NULL,
-    "name" VARCHAR(64) NOT NULL,
+    "symbol" VARCHAR(10) NOT NULL,
 
     CONSTRAINT "storage_subtype_pkey" PRIMARY KEY ("id")
 );
@@ -112,25 +112,25 @@ CREATE TABLE "mutation_log" (
 CREATE UNIQUE INDEX "room_type_short_name_key" ON "room_type"("short_name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "room_type_name_key" ON "room_type"("name");
+CREATE UNIQUE INDEX "room_type_symbol_key" ON "room_type"("symbol");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "product_type_short_name_key" ON "product_type"("short_name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "product_type_name_key" ON "product_type"("name");
+CREATE UNIQUE INDEX "product_type_symbol_key" ON "product_type"("symbol");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "storage_type_short_name_key" ON "storage_type"("short_name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "storage_type_name_key" ON "storage_type"("name");
+CREATE UNIQUE INDEX "storage_type_symbol_key" ON "storage_type"("symbol");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "storage_subtype_short_name_key" ON "storage_subtype"("short_name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "storage_subtype_name_key" ON "storage_subtype"("name");
+CREATE UNIQUE INDEX "storage_subtype_symbol_key" ON "storage_subtype"("symbol");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "storages_barcode_key" ON "storages"("barcode");
