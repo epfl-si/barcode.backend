@@ -3,6 +3,7 @@ import {builder} from "../builder";
 builder.prismaObject('StorageType', {
   name: 'StorageType',
   fields: (t: any) => ({
+    id: t.exposeInt('id'),
     name: t.exposeString('name'),
     shortName: t.exposeString('shortName')
   }),
