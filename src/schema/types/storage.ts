@@ -22,11 +22,46 @@ builder.queryType({
   fields: (t) => ({
     storages: t.prismaField({
       type: ['Storage'],
+      args: {
+        roomTypeSymbol: t.arg.string(),
+        productTypeSymbol: t.arg.string(),
+        storageTypeSymbol: t.arg.string(),
+        storageSubTypeSymbol: t.arg.string(),
+        page: t.arg.int(),
+        pageSize: t.arg.int(),
+      },
       authScopes: {
         needPermission: 'canReadStorage'
       },
       resolve: async (query, root, args, ctx: any, info) => {
-        return ctx.prisma.storage.findMany();
+        const where: any = {};
+        if (args.roomTypeSymbol) {
+          where.roomType = {
+            symbol: args.roomTypeSymbol
+          }
+        }
+        if (args.productTypeSymbol) {
+          where.productType = {
+            symbol: args.productTypeSymbol
+          }
+        }
+        if (args.storageTypeSymbol) {
+          where.storageType = {
+            symbol: args.storageTypeSymbol
+          }
+        }
+        if (args.storageSubTypeSymbol) {
+          where.storageSubType = {
+            symbol: args.storageSubTypeSymbol
+          }
+        }
+        const page = Number(args.page ?? 1);
+        const pageSize = Number(args.pageSize ?? 50);
+        return ctx.prisma.storage.findMany({
+          where,
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+        });
       },
     }),
   }),
