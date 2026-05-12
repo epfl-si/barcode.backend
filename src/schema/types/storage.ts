@@ -29,6 +29,8 @@ builder.queryType({
         storageSubTypeSymbol: t.arg.string(),
         page: t.arg.int(),
         pageSize: t.arg.int(),
+        sortField: t.arg.string(),
+        sortDirection: t.arg.string(),
       },
       authScopes: {
         needPermission: 'canReadStorage'
@@ -36,31 +38,44 @@ builder.queryType({
       resolve: async (query, root, args, ctx: any, info) => {
         const where: any = {};
         if (args.roomTypeSymbol) {
-          where.roomType = {
-            symbol: args.roomTypeSymbol
-          }
+          where.roomType = { symbol: args.roomTypeSymbol }
         }
         if (args.productTypeSymbol) {
-          where.productType = {
-            symbol: args.productTypeSymbol
-          }
+          where.productType = { symbol: args.productTypeSymbol }
         }
         if (args.storageTypeSymbol) {
-          where.storageType = {
-            symbol: args.storageTypeSymbol
-          }
+          where.storageType = { symbol: args.storageTypeSymbol}
         }
         if (args.storageSubTypeSymbol) {
-          where.storageSubType = {
-            symbol: args.storageSubTypeSymbol
-          }
+          where.storageSubType = { symbol: args.storageSubTypeSymbol }
         }
+        const direction = args.sortDirection === 'desc' ? 'desc' : 'asc';
+        const orderBy =
+          (() => {
+            switch (args.sortField) {
+              case 'roomDisplay':
+                return { roomDisplay: direction };
+              case 'barcode':
+                return { barcode: direction };
+              case 'roomType':
+                return { roomType: { symbol: direction } };
+              case 'productType':
+                return { productType: { symbol: direction } };
+              case 'storageType':
+                return { storageType: { symbol: direction } };
+              case 'storageSubType':
+                return { storageSubType: { symbol: direction } };
+              default:
+                return { createdOn: 'desc' };
+            }
+          })();
         const page = Number(args.page ?? 1);
         const pageSize = Number(args.pageSize ?? 50);
         return ctx.prisma.storage.findMany({
           where,
+          orderBy: orderBy,
           skip: (page - 1) * pageSize,
-          take: pageSize,
+          take: pageSize
         });
       },
     }),
