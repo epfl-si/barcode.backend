@@ -1,7 +1,7 @@
 import {builder} from "../builder";
 import {z} from 'zod';
 
-builder.prismaObject('Storage', {
+const StorageRef = builder.prismaObject('Storage', {
   name: 'Storage',
   fields: (t: any) => ({
     barcode: t.exposeString('barcode'),
@@ -18,69 +18,83 @@ builder.prismaObject('Storage', {
   }),
 });
 
-builder.queryType({
+const StorageListResult = builder.objectRef<{
+  totalCount: number;
+  storages: any[];
+}>('StorageListResult').implement({
   fields: (t) => ({
-    storages: t.prismaField({
-      type: ['Storage'],
-      args: {
-        roomTypeSymbol: t.arg.string(),
-        productTypeSymbol: t.arg.string(),
-        storageTypeSymbol: t.arg.string(),
-        storageSubTypeSymbol: t.arg.string(),
-        page: t.arg.int(),
-        pageSize: t.arg.int(),
-        sortField: t.arg.string(),
-        sortDirection: t.arg.string(),
-      },
-      authScopes: {
-        needPermission: 'canReadStorage'
-      },
-      resolve: async (query, root, args, ctx: any, info) => {
-        const where: any = {};
-        if (args.roomTypeSymbol) {
-          where.roomType = { symbol: args.roomTypeSymbol }
-        }
-        if (args.productTypeSymbol) {
-          where.productType = { symbol: args.productTypeSymbol }
-        }
-        if (args.storageTypeSymbol) {
-          where.storageType = { symbol: args.storageTypeSymbol}
-        }
-        if (args.storageSubTypeSymbol) {
-          where.storageSubType = { symbol: args.storageSubTypeSymbol }
-        }
-        const direction = args.sortDirection === 'desc' ? 'desc' : 'asc';
-        const orderBy =
-          (() => {
-            switch (args.sortField) {
-              case 'roomDisplay':
-                return { roomDisplay: direction };
-              case 'barcode':
-                return { barcode: direction };
-              case 'roomType':
-                return { roomType: { symbol: direction } };
-              case 'productType':
-                return { productType: { symbol: direction } };
-              case 'storageType':
-                return { storageType: { symbol: direction } };
-              case 'storageSubType':
-                return { storageSubType: { symbol: direction } };
-              default:
-                return { createdOn: 'desc' };
-            }
-          })();
-        const page = Number(args.page ?? 1);
-        const pageSize = Number(args.pageSize ?? 50);
-        return ctx.prisma.storage.findMany({
-          where,
-          orderBy: orderBy,
-          skip: (page - 1) * pageSize,
-          take: pageSize
-        });
-      },
+    totalCount: t.exposeInt('totalCount'),
+    storages: t.field({
+      type: [StorageRef],
+      resolve: (parent) => parent.storages,
     }),
   }),
 });
+
+builder.queryField('storages', (t) =>
+  t.field({
+    type: StorageListResult,
+    args: {
+      roomTypeSymbol: t.arg.string(),
+      productTypeSymbol: t.arg.string(),
+      storageTypeSymbol: t.arg.string(),
+      storageSubTypeSymbol: t.arg.string(),
+      page: t.arg.int(),
+      pageSize: t.arg.int(),
+      sortField: t.arg.string(),
+      sortDirection: t.arg.string(),
+    },
+    authScopes: {
+      needPermission: 'canReadStorage'
+    },
+    resolve: async (root, args, ctx: any) => {
+      const where: any = {};
+      if (args.roomTypeSymbol) {
+        where.roomType = { symbol: args.roomTypeSymbol }
+      }
+      if (args.productTypeSymbol) {
+        where.productType = { symbol: args.productTypeSymbol }
+      }
+      if (args.storageTypeSymbol) {
+        where.storageType = { symbol: args.storageTypeSymbol}
+      }
+      if (args.storageSubTypeSymbol) {
+        where.storageSubType = { symbol: args.storageSubTypeSymbol }
+      }
+      const direction = args.sortDirection === 'desc' ? 'desc' : 'asc';
+      const orderBy = (() => {
+        switch (args.sortField) {
+          case 'roomDisplay':
+            return { roomDisplay: direction };
+          case 'barcode':
+            return { barcode: direction };
+          case 'roomType':
+            return { roomType: { symbol: direction } };
+          case 'productType':
+            return { productType: { symbol: direction } };
+          case 'storageType':
+            return { storageType: { symbol: direction } };
+          case 'storageSubType':
+            return { storageSubType: { symbol: direction } };
+          default:
+            return { createdOn: 'desc' };
+        }
+      })();
+      const page = Number(args.page ?? 1);
+      const pageSize = Number(args.pageSize ?? 50);
+      const [totalCount, storages] = await Promise.all([
+        ctx.prisma.storage.count({ where }),
+        ctx.prisma.storage.findMany({
+          where,
+          orderBy,
+          skip: (page - 1) * pageSize,
+          take: pageSize,
+        }),
+      ]);
+      return { totalCount, storages };
+    },
+  })
+);
 
 builder.mutationType({
   fields: (t) => ({
