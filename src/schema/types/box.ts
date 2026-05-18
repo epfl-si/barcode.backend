@@ -10,20 +10,19 @@ builder.prismaObject('Box', {
 
 builder.mutationType({
   fields: (t) => ({
-    createBox: t.boolean({
+    createBox: t.string({
       authScopes: {
         needPermission: 'canCreateBox'
       },
       args: {
-        // TODO add shelf barcode
-        barcode: t.arg.string(),
+        parentBarcode: t.arg.string(),
       },
       validate: z.object({
-        barcode: z.string().nonempty(),
+        parentBarcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        await createBox(ctx, args.barcode!);
-        return true;
+        const box = await createBox(ctx, args.parentBarcode!);
+        return box.barcode;
       },
     }),
     deleteBox: t.boolean({
@@ -45,10 +44,16 @@ builder.mutationType({
 });
 
 export async function createBox (context: any, barcode: string) {
-  await context.prisma.box.create({
+  const parent = await context.prisma.shelf.findUnique({where: {barcode: barcode}});
+  const lastNumber = await context.prisma.box.aggregate({where: {idShelf: parent.id}, _max: {numBox: true}});
+  const newNumber = lastNumber._max.numBox ? lastNumber._max.numBox + 1 : 1;
+  return await context.prisma.box.create({
     data: {
-      // TODO add id shelf after get it from barcode
-      barcode: barcode
+      idShelf: parent.id,
+      barcode: `${barcode} B${newNumber}`,
+      numBox: newNumber,
+      createdBy: context.user.username,
+      createdOn: new Date()
     },
   });
 }
