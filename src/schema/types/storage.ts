@@ -28,6 +28,11 @@ const StorageListResult = builder.objectRef<{
       type: [StorageRef],
       resolve: (parent) => parent.storages,
     }),
+  }),
+});
+
+builder.queryType({
+  fields: (t) => ({
     storage: t.prismaField({
       type: 'Storage',
       authScopes: {
