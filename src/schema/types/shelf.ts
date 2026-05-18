@@ -61,10 +61,22 @@ async function createShelf (context: any, barcode: string) {
 }
 
 async function deleteShelf (context: any, barcode: string) {
-  // TODO delete boxes in cascade before deleting storages
-  await context.prisma.shelf.delete({
+  const shelf = await context.prisma.shelf.update({
     where: {
       barcode: barcode
     },
+    data: {
+      deletedBy: context.user.username,
+      deletedOn: new Date()
+    }
+  });
+  await context.prisma.box.updateMany({
+    where: {
+      idShelf: shelf.id
+    },
+    data: {
+      deletedBy: context.user.username,
+      deletedOn: new Date()
+    }
   });
 }
