@@ -28,6 +28,25 @@ const StorageListResult = builder.objectRef<{
       type: [StorageRef],
       resolve: (parent) => parent.storages,
     }),
+    storage: t.prismaField({
+      type: 'Storage',
+      authScopes: {
+        needPermission: 'canReadStorage'
+      },
+      args: {
+        barcode: t.arg.string(),
+      },
+      validate: z.object({
+        barcode: z.string().nonempty(),
+      }),
+      resolve: async (query, root, args, ctx: any, info) => {
+        return ctx.prisma.storage.findUnique({
+          where: {
+            barcode: args.barcode
+          }
+        });
+      },
+    }),
   }),
 });
 
