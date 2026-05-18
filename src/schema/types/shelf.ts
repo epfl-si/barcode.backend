@@ -11,7 +11,7 @@ builder.prismaObject('Shelf', {
 
 builder.mutationType({
   fields: (t) => ({
-    createShelf: t.boolean({
+    createShelf: t.string({
       authScopes: {
         needPermission: 'canCreateShelf'
       },
@@ -23,8 +23,8 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        await createShelf(ctx, args.barcode!);
-        return true;
+        const shelf = await createShelf(ctx, args.barcode!);
+        return shelf.barcode;
       },
     }),
     deleteShelf: t.boolean({
@@ -46,7 +46,7 @@ builder.mutationType({
 });
 
 async function createShelf (context: any, barcode: string) {
-  await context.prisma.shelf.create({
+  return await context.prisma.shelf.create({
     data: {
       // TODO add id storage after get it from barcode
       barcode: barcode
