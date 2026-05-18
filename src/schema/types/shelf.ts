@@ -5,7 +5,16 @@ builder.prismaObject('Shelf', {
   name: 'Shelf',
   fields: (t: any) => ({
     barcode: t.exposeString('barcode'),
-    boxes: t.relation('boxes')
+    boxes: t.relation('boxes', {
+      args: {
+        includeDeleted: t.arg.boolean({ defaultValue: false }),
+      },
+      query: (args: { includeDeleted: boolean; }) => ({
+        where: {
+          deletedOn: args.includeDeleted ? undefined : null,
+        }
+      })
+    })
   }),
 });
 

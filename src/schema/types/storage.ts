@@ -14,7 +14,16 @@ const StorageRef = builder.prismaObject('Storage', {
     createdOn: t.expose('createdOn', { type: 'DateTime' }),
     deletedBy: t.exposeString('deletedBy'),
     deletedOn: t.expose('deletedOn', { type: 'DateTime', nullable: true }),
-    shelves: t.relation('shelves')
+    shelves: t.relation('shelves', {
+      args: {
+        includeDeleted: t.arg.boolean({ defaultValue: false }),
+      },
+      query: (args: { includeDeleted: boolean; }) => ({
+        where: {
+          deletedOn: args.includeDeleted ? undefined : null,
+        }
+      })
+    })
   }),
 });
 
