@@ -16,14 +16,13 @@ builder.mutationType({
         needPermission: 'canCreateShelf'
       },
       args: {
-        // TODO add storage barcode
-        barcode: t.arg.string(),
+        parentBarcode: t.arg.string(),
       },
       validate: z.object({
-        barcode: z.string().nonempty(),
+        parentBarcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        const shelf = await createShelf(ctx, args.barcode!);
+        const shelf = await createShelf(ctx, args.parentBarcode!);
         return shelf.barcode;
       },
     }),
@@ -46,10 +45,16 @@ builder.mutationType({
 });
 
 async function createShelf (context: any, barcode: string) {
+  const parent = await context.prisma.storage.findUnique({where: {barcode: barcode}});
+  const lastNumber = await context.prisma.shelf.aggregate({where: {idStorage: parent.id}, _max: {numShelf: true}});
+  const newNumber = lastNumber._max.numShelf ? lastNumber._max.numShelf + 1 : 1;
   return await context.prisma.shelf.create({
     data: {
-      // TODO add id storage after get it from barcode
-      barcode: barcode
+      idStorage: parent.id,
+      barcode: `${barcode} E${newNumber}`,
+      numShelf: newNumber,
+      createdBy: context.user.username,
+      createdOn: new Date()
     },
   });
   // TODO create boxes in cascade after saving shelves
