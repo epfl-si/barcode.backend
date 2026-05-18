@@ -59,9 +59,13 @@ export async function createBox (context: any, barcode: string) {
 }
 
 export async function deleteBox (context: any, barcode: string) {
-  await context.prisma.box.delete({
+  await context.prisma.box.update({
     where: {
       barcode: barcode
     },
+    data: {
+      deletedBy: context.user.username,
+      deletedOn: new Date()
+    }
   });
 }
