@@ -54,6 +54,21 @@ builder.mutationType({
         return true;
       },
     }),
+    undeleteShelf: t.boolean({
+      authScopes: {
+        needPermission: 'isAdmin'
+      },
+      args: {
+        barcode: t.arg.string(),
+      },
+      validate: z.object({
+        barcode: z.string().nonempty(),
+      }),
+      resolve: async (root, args, ctx: any) => {
+        await undeleteShelf(ctx, args.barcode!);
+        return true;
+      },
+    }),
   }),
 });
 
@@ -90,6 +105,18 @@ async function deleteShelf (context: any, barcode: string) {
     data: {
       deletedBy: context.user.username,
       deletedOn: new Date()
+    }
+  });
+}
+
+async function undeleteShelf (context: any, barcode: string) {
+  await context.prisma.shelf.update({
+    where: {
+      barcode: barcode
+    },
+    data: {
+      deletedBy: null,
+      deletedOn: null
     }
   });
 }

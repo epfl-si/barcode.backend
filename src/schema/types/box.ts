@@ -44,6 +44,21 @@ builder.mutationType({
         return true;
       },
     }),
+    undeleteBox: t.boolean({
+      authScopes: {
+        needPermission: 'isAdmin'
+      },
+      args: {
+        barcode: t.arg.string(),
+      },
+      validate: z.object({
+        barcode: z.string().nonempty(),
+      }),
+      resolve: async (root, args, ctx: any) => {
+        await undeleteBox(ctx, args.barcode!);
+        return true;
+      },
+    }),
   }),
 });
 
@@ -70,6 +85,18 @@ export async function deleteBox (context: any, barcode: string) {
     data: {
       deletedBy: context.user.username,
       deletedOn: new Date()
+    }
+  });
+}
+
+export async function undeleteBox (context: any, barcode: string) {
+  await context.prisma.box.update({
+    where: {
+      barcode: barcode
+    },
+    data: {
+      deletedBy: null,
+      deletedOn: null
     }
   });
 }

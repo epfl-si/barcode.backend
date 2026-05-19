@@ -163,9 +163,23 @@ builder.mutationType({
         return true;
       },
     }),
+    undeleteStorage: t.boolean({
+      authScopes: {
+        needPermission: 'isAdmin'
+      },
+      args: {
+        barcode: t.arg.string(),
+      },
+      validate: z.object({
+        barcode: z.string().nonempty(),
+      }),
+      resolve: async (root, args, ctx: any) => {
+        await undeleteStorage(ctx, args.barcode!);
+        return true;
+      },
+    }),
   }),
 });
-
 
 async function createStorage (ctx: any, barcode: string) {
   await ctx.prisma.storage.create({
@@ -177,11 +191,28 @@ async function createStorage (ctx: any, barcode: string) {
   // TODO create boxes and shelves in cascade after saving storages
 }
 
-async function deleteStorage (ctx: any, barcode: string) {
+async function deleteStorage (context: any, barcode: string) {
   // TODO delete boxes and shelves in cascade before deleting storages
-  await ctx.prisma.storage.delete({
+  const storage = await context.prisma.storage.update({
     where: {
       barcode: barcode
     },
+    data: {
+      deletedBy: context.user.username,
+      deletedOn: new Date()
+    }
+  });
+
+}
+
+async function undeleteStorage (context: any, barcode: string) {
+  await context.prisma.storage.update({
+    where: {
+      barcode: barcode
+    },
+    data: {
+      deletedBy: null,
+      deletedOn: null
+    }
   });
 }
