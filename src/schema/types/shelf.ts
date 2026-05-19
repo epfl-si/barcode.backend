@@ -5,6 +5,10 @@ builder.prismaObject('Shelf', {
   name: 'Shelf',
   fields: (t: any) => ({
     barcode: t.exposeString('barcode'),
+    createdBy: t.exposeString('createdBy'),
+    createdOn: t.expose('createdOn', { type: 'DateTime' }),
+    deletedBy: t.exposeString('deletedBy'),
+    deletedOn: t.expose('deletedOn', { type: 'DateTime', nullable: true }),
     boxes: t.relation('boxes', {
       args: {
         includeDeleted: t.arg.boolean({ defaultValue: false }),
