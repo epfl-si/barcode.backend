@@ -35,7 +35,11 @@ builder.mutationType({
         parentBarcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        const shelf = await createShelf(ctx, args.parentBarcode!);
+        const parent = await ctx.prisma.storage.findUnique({where: {barcode: args.parentBarcode!}});
+        if (parent.deletedBy !== null) {
+          throw new Error("You cannot add a shelf on a deleted storage")
+        }
+        const shelf = await createShelf(ctx, args.parentBarcode!, parent);
         return shelf.barcode;
       },
     }),
@@ -65,6 +69,13 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
+        const parent = await ctx.prisma.shelf.findUnique({
+          where: {barcode: args.barcode!},
+          include: {storage: true}
+        });
+        if (parent.storage.deletedBy !== null) {
+          throw new Error("You cannot add a shelf on a deleted storage")
+        }
         await undeleteShelf(ctx, args.barcode!);
         return true;
       },
@@ -72,8 +83,7 @@ builder.mutationType({
   }),
 });
 
-async function createShelf (context: any, barcode: string) {
-  const parent = await context.prisma.storage.findUnique({where: {barcode: barcode}});
+async function createShelf (context: any, barcode: string, parent: {id: number}) {
   const lastNumber = await context.prisma.shelf.aggregate({where: {idStorage: parent.id}, _max: {numShelf: true}});
   const newNumber = lastNumber._max.numShelf ? lastNumber._max.numShelf + 1 : 1;
   return await context.prisma.shelf.create({

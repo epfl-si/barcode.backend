@@ -25,7 +25,14 @@ builder.mutationType({
         parentBarcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        const box = await createBox(ctx, args.parentBarcode!);
+        const parent = await ctx.prisma.shelf.findUnique({
+          where: {barcode: args.parentBarcode!},
+          include: {storage: true}
+        });
+        if (parent.deletedBy !== null || parent.storage.deletedBy !== null) {
+          throw new Error("You cannot add a box on a deleted storage or shelf")
+        }
+        const box = await createBox(ctx, args.parentBarcode!, parent);
         return box.barcode;
       },
     }),
@@ -55,6 +62,13 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
+        const parent = await ctx.prisma.box.findUnique({
+          where: {barcode: args.barcode!},
+          include: {shelf: {include: {storage: true}}}
+        });
+        if (parent.shelf.deletedBy !== null || parent.shelf.storage.deletedBy !== null) {
+          throw new Error("You cannot add a box on a deleted storage or shelf")
+        }
         await undeleteBox(ctx, args.barcode!);
         return true;
       },
@@ -62,8 +76,7 @@ builder.mutationType({
   }),
 });
 
-export async function createBox (context: any, barcode: string) {
-  const parent = await context.prisma.shelf.findUnique({where: {barcode: barcode}});
+export async function createBox (context: any, barcode: string, parent: {id: number}) {
   const lastNumber = await context.prisma.box.aggregate({where: {idShelf: parent.id}, _max: {numBox: true}});
   const newNumber = lastNumber._max.numBox ? lastNumber._max.numBox + 1 : 1;
   return await context.prisma.box.create({
