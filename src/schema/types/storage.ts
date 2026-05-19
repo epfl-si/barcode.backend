@@ -21,6 +21,9 @@ const StorageRef = builder.prismaObject('Storage', {
       query: (args: { includeDeleted: boolean; }) => ({
         where: {
           deletedOn: args.includeDeleted ? undefined : null,
+        },
+        orderBy: {
+          barcode: 'asc'
         }
       })
     })
