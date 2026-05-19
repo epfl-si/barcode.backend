@@ -192,17 +192,32 @@ async function createStorage (ctx: any, barcode: string) {
 }
 
 async function deleteStorage (context: any, barcode: string) {
-  // TODO delete boxes and shelves in cascade before deleting storages
+  const data = {
+    deletedBy: context.user.username,
+    deletedOn: new Date()
+  };
   const storage = await context.prisma.storage.update({
     where: {
       barcode: barcode
     },
-    data: {
-      deletedBy: context.user.username,
-      deletedOn: new Date()
-    }
+    data: data
   });
-
+  const shelves = (await context.prisma.shelf.findMany({where: {idStorage: storage.id}}))
+    .map((shelf: { id: number; }) => shelf.id);
+  await context.prisma.shelf.updateMany({
+    where: {
+      idStorage: storage.id
+    },
+    data: data
+  });
+  await context.prisma.box.updateMany({
+    where: {
+      idShelf: {
+        in: shelves
+      }
+    },
+    data: data
+  });
 }
 
 async function undeleteStorage (context: any, barcode: string) {
