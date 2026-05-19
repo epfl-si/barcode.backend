@@ -10,6 +10,9 @@ builder.prismaObject('Shelf', {
     deletedBy: t.exposeString('deletedBy'),
     deletedOn: t.expose('deletedOn', { type: 'DateTime', nullable: true }),
     boxes: t.relation('boxes', {
+      authScopes: {
+        needPermission: 'canReadBox'
+      },
       args: {
         includeDeleted: t.arg.boolean({ defaultValue: false }),
       },
