@@ -18,12 +18,12 @@ insert into storage_type (symbol, short_name) values ('SHLVG', 'Y');
 insert into storage_type (symbol, short_name) values ('FRDGE', 'R');
 insert into storage_type (symbol, short_name) values ('OTHER', 'U');
 
-insert into storage_subtype (symbol, short_name) values ('ATEX', 'A');
+insert into storage_subtype (symbol, short_name) values ('ATEX', 'X');
 insert into storage_subtype (symbol, short_name) values ('FR90', 'R');
 insert into storage_subtype (symbol, short_name) values ('STDRD', 'S');
 insert into storage_subtype (symbol, short_name) values ('VENTD', 'V');
 insert into storage_subtype (symbol, short_name) values ('VFR90', 'F');
-insert into storage_subtype (symbol, short_name) values ('OTHER', 'X');
+insert into storage_subtype (symbol, short_name) values ('OTHER', 'A');
 
 insert into allowed_type_values (id_room_type, id_product_type, id_storage_type, id_storage_subtype, allows_shelves, allows_boxes) values (1, 2, 1, 3, true, true);
 insert into allowed_type_values (id_room_type, id_product_type, id_storage_type, id_storage_subtype, allows_shelves, allows_boxes) values (1, 2, 1, 4, true, true);
