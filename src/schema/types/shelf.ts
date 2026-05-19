@@ -101,7 +101,6 @@ async function createShelf (context: any, barcode: string, parent: {id: number})
       createdOn: new Date()
     },
   });
-  // TODO create boxes in cascade after saving shelves
 }
 
 async function deleteShelf (context: any, barcode: string) {

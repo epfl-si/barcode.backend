@@ -137,21 +137,29 @@ builder.queryField('storages', (t) =>
 
 builder.mutationType({
   fields: (t) => ({
-    createStorage: t.boolean({
+    createStorage: t.string({
       authScopes: {
         needPermission: 'canCreateStorage'
       },
       args: {
-        barcode: t.arg.string(),
-        // TODO add all other fields
+        roomId: t.arg.int(),
+        roomDisplay: t.arg.string(),
+        roomType: t.arg.string(),
+        productType: t.arg.string(),
+        storageType: t.arg.string(),
+        storageSubType: t.arg.string(),
       },
       validate: z.object({
-        barcode: z.string().nonempty(),
-        // TODO add all other fields
+        roomId: z.int().nonnegative(),
+        roomDisplay: z.string().nonempty(),
+        roomType: z.string().nonempty(),
+        productType: z.string().nonempty(),
+        storageType: z.string().nonempty(),
+        storageSubType: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        await createStorage(ctx, args.barcode!);
-        return true;
+        const storage = await createStorage(ctx, args.roomDisplay!, args.roomId!, args.roomType!, args.productType!, args.storageType!, args.storageSubType!);
+        return storage.barcode;
       },
     }),
     deleteStorage: t.boolean({
@@ -187,14 +195,35 @@ builder.mutationType({
   }),
 });
 
-async function createStorage (ctx: any, barcode: string) {
-  await ctx.prisma.storage.create({
+async function createStorage (context: any, roomDisplay: string, roomId: number, roomType: string, productType: string, storageType: string, storageSubType: string) {
+  const roomTypeObj = await context.prisma.roomType.findUnique({where: {symbol: roomType}});
+  const productTypeObj = await context.prisma.productType.findUnique({where: {symbol: productType}});
+  const storageTypeObj = await context.prisma.storageType.findUnique({where: {symbol: storageType}});
+  const storageSubTypeObj = await context.prisma.storageSubType.findUnique({where: {symbol: storageSubType}});
+
+  const lastNumber = await context.prisma.storage.aggregate({
+    where: {
+      roomId: roomId,
+      idRoomType: roomTypeObj.id,
+      idProductType: productTypeObj.id,
+      idStorageType: storageTypeObj.id
+    }, _max: {numStorage: true}});
+  const newNumber = lastNumber._max.numStorage ? lastNumber._max.numStorage + 1 : 1;
+
+  return await context.prisma.storage.create({
     data: {
-      barcode: barcode
-      // TODO add all other fields
+      barcode: `${roomDisplay} ${roomTypeObj.shortName}${productTypeObj.shortName} ${storageTypeObj.shortName}${newNumber} ${storageSubTypeObj.shortName}`,
+      numStorage: newNumber,
+      roomId: roomId,
+      roomDisplay: roomDisplay,
+      idRoomType: roomTypeObj.id,
+      idProductType: productTypeObj.id,
+      idStorageType: storageTypeObj.id,
+      idStorageSubType: storageSubTypeObj.id,
+      createdBy: context.user.username,
+      createdOn: new Date(),
     },
   });
-  // TODO create boxes and shelves in cascade after saving storages
 }
 
 async function deleteStorage (context: any, barcode: string) {
