@@ -177,7 +177,7 @@ builder.mutationType({
         return true;
       },
     }),
-    undeleteStorage: t.boolean({
+    restoreStorage: t.boolean({
       authScopes: {
         needPermission: 'isAdmin'
       },
@@ -188,7 +188,7 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        await undeleteStorage(ctx, args.barcode!);
+        await restoreStorage(ctx, args.barcode!);
         return true;
       },
     }),
@@ -255,7 +255,7 @@ async function deleteStorage (context: any, barcode: string) {
   });
 }
 
-async function undeleteStorage (context: any, barcode: string) {
+async function restoreStorage (context: any, barcode: string) {
   await context.prisma.storage.update({
     where: {
       barcode: barcode

@@ -51,7 +51,7 @@ builder.mutationType({
         return true;
       },
     }),
-    undeleteBox: t.boolean({
+    restoreBox: t.boolean({
       authScopes: {
         needPermission: 'isAdmin'
       },
@@ -69,7 +69,7 @@ builder.mutationType({
         if (parent.shelf.deletedBy !== null || parent.shelf.storage.deletedBy !== null) {
           throw new Error("You cannot add a box on a deleted storage or shelf")
         }
-        await undeleteBox(ctx, args.barcode!);
+        await restoreBox(ctx, args.barcode!);
         return true;
       },
     }),
@@ -102,7 +102,7 @@ export async function deleteBox (context: any, barcode: string) {
   });
 }
 
-export async function undeleteBox (context: any, barcode: string) {
+export async function restoreBox (context: any, barcode: string) {
   await context.prisma.box.update({
     where: {
       barcode: barcode

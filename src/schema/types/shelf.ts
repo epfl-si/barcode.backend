@@ -64,7 +64,7 @@ builder.mutationType({
         return true;
       },
     }),
-    undeleteShelf: t.boolean({
+    restoreShelf: t.boolean({
       authScopes: {
         needPermission: 'isAdmin'
       },
@@ -82,7 +82,7 @@ builder.mutationType({
         if (parent.storage.deletedBy !== null) {
           throw new Error("You cannot add a shelf on a deleted storage")
         }
-        await undeleteShelf(ctx, args.barcode!);
+        await restoreShelf(ctx, args.barcode!);
         return true;
       },
     }),
@@ -124,7 +124,7 @@ async function deleteShelf (context: any, barcode: string) {
   });
 }
 
-async function undeleteShelf (context: any, barcode: string) {
+async function restoreShelf (context: any, barcode: string) {
   await context.prisma.shelf.update({
     where: {
       barcode: barcode
