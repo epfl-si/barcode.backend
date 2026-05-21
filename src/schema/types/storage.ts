@@ -76,6 +76,7 @@ builder.queryField('storages', (t) =>
       productTypeSymbol: t.arg.string(),
       storageTypeSymbol: t.arg.string(),
       storageSubTypeSymbol: t.arg.string(),
+      roomDisplay: t.arg.string(),
       page: t.arg.int(),
       pageSize: t.arg.int(),
       sortField: t.arg.string(),
@@ -119,6 +120,9 @@ builder.queryField('storages', (t) =>
       if (args.storageSubTypeSymbol) {
         where.storageSubType = { symbol: args.storageSubTypeSymbol }
       }
+      if (args.roomDisplay) {
+        where.roomDisplay = args.roomDisplay;
+      }
       const direction = args.sortDirection === 'desc' ? 'desc' : 'asc';
       const orderBy = (() => {
         switch (args.sortField) {
@@ -154,6 +158,44 @@ builder.queryField('storages', (t) =>
         }),
       ]);
       return { totalCount, storages };
+    },
+  })
+);
+
+builder.queryField('suggestStorage', (t) =>
+  t.stringList({
+    description: 'Returns a list of text suggestions for autocomplete features',
+    authScopes: {
+      needPermission: 'canReadStorage'
+    },
+    args: {
+      field: t.arg.string({ required: true, description: 'The database field to search on (e.g., barcode, roomDisplay)' }),
+      searchText: t.arg.string({ required: true, description: 'The partial text input provided by the user' }),
+    },
+    validate: z.object({
+      field: z.enum(['barcode', 'roomDisplay']),
+      searchText: z.string().min(2),
+    }),
+    resolve: async (root, args, ctx: any) => {
+      const { field, searchText } = args;
+      const results = await ctx.prisma.storage.findMany({
+        where: {
+          [field]: {
+            contains: searchText,
+            mode: 'insensitive',
+          },
+          deletedOn: null,
+        },
+        select: {
+          [field]: true,
+        },
+        distinct: [field],
+        take: 10,
+        orderBy: {
+          [field]: 'asc'
+        }
+      });
+      return results.map((item: any) => item[field]);
     },
   })
 );
