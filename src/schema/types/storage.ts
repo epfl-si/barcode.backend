@@ -18,12 +18,9 @@ const StorageRef = builder.prismaObject('Storage', {
       authScopes: {
         needPermission: 'canReadShelf'
       },
-      args: {
-        includeDeleted: t.arg.boolean({ defaultValue: false }),
-      },
-      query: (args: { includeDeleted: boolean; }) => ({
+      query: (args:{}, ctx: any) => ({
         where: {
-          deletedOn: args.includeDeleted ? undefined : null,
+          deletedOn: ctx.user.isAdmin ? undefined : null,
         },
         orderBy: {
           barcode: 'asc'
@@ -87,7 +84,9 @@ builder.queryField('storages', (t) =>
       needPermission: 'canReadStorage'
     },
     resolve: async (root, args, ctx: any) => {
-      const where: any = {};
+      const where: any = {
+        deletedOn: ctx.user.isAdmin ? undefined : null,
+      };
       if (args.roomTypeSymbol) {
         where.roomType = { symbol: args.roomTypeSymbol }
       }
