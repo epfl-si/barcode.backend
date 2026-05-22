@@ -13,12 +13,9 @@ builder.prismaObject('Shelf', {
       authScopes: {
         needPermission: 'canReadBox'
       },
-      args: {
-        includeDeleted: t.arg.boolean({ defaultValue: false }),
-      },
-      query: (args: { includeDeleted: boolean; }) => ({
+      query: (args:{}, ctx: any) => ({
         where: {
-          deletedOn: args.includeDeleted ? undefined : null,
+          deletedOn: ctx.user.isAdmin ? undefined : null,
         },
         orderBy: {
           barcode: 'asc'
