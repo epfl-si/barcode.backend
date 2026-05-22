@@ -32,6 +32,16 @@ builder.mutationType({
         if (parent.deletedBy !== null || parent.storage.deletedBy !== null) {
           throw new Error("You cannot add a box on a deleted storage or shelf")
         }
+        const allowedType = await ctx.prisma.allowedTypeValue.findFirst(
+          {where: {
+            idRoomType: parent.storage.idRoomType,
+            idProductType: parent.storage.idProductType,
+            idStorageType: parent.storage.idStorageType,
+            idStorageSubType: parent.storage.idStorageSubType
+          }});
+        if (!allowedType.allowsBoxes) {
+          throw new Error("You cannot add a box on this type of storage")
+        }
         const box = await createBox(ctx, args.parentBarcode!, parent);
         return box.barcode;
       },
