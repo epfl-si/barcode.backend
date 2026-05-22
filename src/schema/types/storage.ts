@@ -95,6 +95,7 @@ builder.queryField('storages', (t) =>
       storageTypeSymbol: t.arg.string(),
       storageSubTypeSymbol: t.arg.string(),
       roomDisplay: t.arg.string(),
+      searchTerm: t.arg.string(),
       page: t.arg.int(),
       pageSize: t.arg.int(),
       sortField: t.arg.string(),
@@ -140,6 +141,22 @@ builder.queryField('storages', (t) =>
       }
       if (args.roomDisplay) {
         where.roomDisplay = args.roomDisplay;
+      }
+      if (args.searchTerm) {
+        where.OR = [
+          {
+            barcode: {
+              contains: args.searchTerm,
+              mode: 'insensitive'
+            }
+          },
+          {
+            roomDisplay: {
+              contains: args.searchTerm,
+              mode: 'insensitive'
+            }
+          }
+        ];
       }
       const direction = args.sortDirection === 'desc' ? 'desc' : 'asc';
       const orderBy = (() => {
