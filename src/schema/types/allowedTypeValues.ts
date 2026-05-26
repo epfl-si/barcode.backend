@@ -1,5 +1,5 @@
 import {builder} from "../builder";
-import {z} from 'zod';
+import {getTypesEnum} from "../../lib/enum";
 
 builder.prismaObject('AllowedTypeValue', {
   name: 'AllowedTypeValue',
@@ -22,13 +22,13 @@ builder.queryType({
         storageSymbol: t.arg.string(),
         subStorageSymbol: t.arg.string(),
       },
-      validate: z.object({
-        roomSymbol: z.string().nonempty(),
-        productSymbol: z.string().nonempty(),
-        storageSymbol: z.string().nonempty(),
-        subStorageSymbol: z.string().nonempty()
-      }),
       resolve: async (query, root, args, ctx: any, info) => {
+
+        (await getTypesEnum(ctx, 'roomType')).parse(args.roomSymbol);
+        (await getTypesEnum(ctx, 'productType')).parse(args.productSymbol);
+        (await getTypesEnum(ctx, 'storageType')).parse(args.storageSymbol);
+        (await getTypesEnum(ctx, 'storageSubType')).parse(args.subStorageSymbol);
+
         return await ctx.prisma.allowedTypeValue.findFirst({
           where: {
             roomType: {
