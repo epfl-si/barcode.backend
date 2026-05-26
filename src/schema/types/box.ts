@@ -94,7 +94,7 @@ export async function createBox (context: any, barcode: string, parent: {id: num
       idShelf: parent.id,
       barcode: `${barcode} B${newNumber}`,
       numBox: newNumber,
-      createdBy: context.user.username,
+      createdBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
       createdOn: new Date()
     },
   });
@@ -106,7 +106,7 @@ export async function deleteBox (context: any, barcode: string) {
       barcode: barcode
     },
     data: {
-      deletedBy: context.user.username,
+      deletedBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
       deletedOn: new Date()
     }
   });

@@ -28,7 +28,10 @@ export async function authenticateFromBearerToken(req: Request<{}, any, any, Par
   const user: UserInfo = {
     groups: userGroups,
     username: ( authenticationResult.unique_name ||
-      authenticationResult.gaspar )  // EPFL-ism in Entra
+      authenticationResult.gaspar ),  // EPFL-ism in Entra
+    familyName: authenticationResult.family_name,
+    givenName: authenticationResult.given_name,
+    sciper: authenticationResult.uniqueid
   };
 
   const hasRoleAdmin = user.groups.indexOf((process.env.ADMIN_GROUP ?? '')) > -1;

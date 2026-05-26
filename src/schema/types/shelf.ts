@@ -104,7 +104,7 @@ async function createShelf (context: any, barcode: string, parent: {id: number})
       idStorage: parent.id,
       barcode: `${barcode} E${newNumber}`,
       numShelf: newNumber,
-      createdBy: context.user.username,
+      createdBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
       createdOn: new Date()
     },
   });
@@ -116,7 +116,7 @@ async function deleteShelf (context: any, barcode: string) {
       barcode: barcode
     },
     data: {
-      deletedBy: context.user.username,
+      deletedBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
       deletedOn: new Date()
     }
   });
@@ -125,7 +125,7 @@ async function deleteShelf (context: any, barcode: string) {
       idShelf: shelf.id
     },
     data: {
-      deletedBy: context.user.username,
+      deletedBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
       deletedOn: new Date()
     }
   });

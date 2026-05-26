@@ -25,7 +25,7 @@ import {prisma} from "../schema/prisma";
  * @returns A Prisma client instance configured for the given user, with
  *          auditing and optional query logging enabled.
  */
-export function getPrismaForUser(user: { username: string }) {
+export function getPrismaForUser(user: UserInfo) {
   return prisma.$extends({
     query: {
       async $allOperations({ model, operation, args, query }) {
@@ -52,7 +52,7 @@ export function getPrismaForUser(user: { username: string }) {
           const id = idKey ? source[idKey] : null;
           await prisma.mutationLog.create({
             data: {
-              modifiedBy: user.username,
+              modifiedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
               modifiedOn: new Date(),
               tableName: model,
               tableId: id,

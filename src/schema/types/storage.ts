@@ -242,7 +242,7 @@ async function createStorage (context: any, roomDisplay: string, roomId: number,
       idProductType: productTypeObj.id,
       idStorageType: storageTypeObj.id,
       idStorageSubType: storageSubTypeObj.id,
-      createdBy: context.user.username,
+      createdBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
       createdOn: new Date(),
     },
   });
@@ -250,7 +250,7 @@ async function createStorage (context: any, roomDisplay: string, roomId: number,
 
 async function deleteStorage (context: any, barcode: string) {
   const data = {
-    deletedBy: context.user.username,
+    deletedBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
     deletedOn: new Date()
   };
   const storage = await context.prisma.storage.update({
