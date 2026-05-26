@@ -1,5 +1,6 @@
 import {builder} from "../builder";
 import {z} from 'zod';
+import {getTypesEnum} from "../../lib/enum";
 
 const StorageRef = builder.prismaObject('Storage', {
   name: 'Storage',
@@ -80,10 +81,26 @@ builder.queryField('storages', (t) =>
       sortField: t.arg.string(),
       sortDirection: t.arg.string(),
     },
+    validate: z.object({
+      roomTypeSymbol: z.string().optional(),
+      productTypeSymbol: z.string().optional(),
+      storageTypeSymbol: z.string().optional(),
+      storageSubTypeSymbol: z.string().optional(),
+      page: z.int().nonnegative().optional(),
+      pageSize: z.int().nonnegative().optional(),
+      sortField: z.enum(["barcode", "roomDisplay", "roomType", "productType", "storageType", "storageSubType", "createdBy", "createdOn", "deletedBy"]).optional(),
+      sortDirection: z.enum(["asc","desc"]).optional()
+    }),
     authScopes: {
       needPermission: 'canReadStorage'
     },
     resolve: async (root, args, ctx: any) => {
+
+      (await getTypesEnum(ctx, 'roomType', true)).optional().parse(args.roomTypeSymbol);
+      (await getTypesEnum(ctx, 'productType', true)).optional().parse(args.productTypeSymbol);
+      (await getTypesEnum(ctx, 'storageType', true)).optional().parse(args.storageTypeSymbol);
+      (await getTypesEnum(ctx, 'storageSubType', true)).optional().parse(args.storageSubTypeSymbol);
+
       const where: any = {
         deletedOn: ctx.user.isAdmin ? undefined : null,
       };
@@ -157,6 +174,12 @@ builder.mutationType({
         storageSubType: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
+
+        (await getTypesEnum(ctx, 'roomType')).parse(args.roomType);
+        (await getTypesEnum(ctx, 'productType')).parse(args.productType);
+        (await getTypesEnum(ctx, 'storageType')).parse(args.storageType);
+        (await getTypesEnum(ctx, 'storageSubType')).parse(args.storageSubType);
+
         const storage = await createStorage(ctx, args.roomDisplay!, args.roomId!, args.roomType!, args.productType!, args.storageType!, args.storageSubType!);
         return storage.barcode;
       },

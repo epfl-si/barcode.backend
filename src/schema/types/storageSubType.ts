@@ -1,4 +1,5 @@
 import {builder} from "../builder";
+import {getTypesEnum} from "../../lib/enum";
 
 builder.prismaObject('StorageSubType', {
   name: 'StorageSubType',
@@ -21,6 +22,11 @@ builder.queryType({
         storageSymbol: t.arg.string(),
       },
       resolve: async (query, root, args, ctx: any, info) => {
+
+        (await getTypesEnum(ctx, 'roomType')).optional().parse(args.roomSymbol);
+        (await getTypesEnum(ctx, 'productType')).optional().parse(args.productSymbol);
+        (await getTypesEnum(ctx, 'storageType')).optional().parse(args.storageSymbol);
+
         if (args.roomSymbol && args.productSymbol && args.storageSymbol) {
           return await ctx.prisma.storageSubType.findMany({
             where: {
