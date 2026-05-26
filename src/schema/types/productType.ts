@@ -1,4 +1,5 @@
 import {builder} from "../builder";
+import {getTypesEnum} from "../../lib/enum";
 
 builder.prismaObject('ProductType', {
   name: 'ProductType',
@@ -19,6 +20,9 @@ builder.queryType({
         roomSymbol: t.arg.string(),
       },
       resolve: async (query, root, args, ctx: any, info) => {
+
+        (await getTypesEnum(ctx, 'roomType')).optional().parse(args.roomSymbol);
+
         if (args.roomSymbol) {
           return await ctx.prisma.productType.findMany({
             where: {
