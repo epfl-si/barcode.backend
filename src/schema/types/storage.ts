@@ -205,8 +205,10 @@ builder.mutationType({
         (await getTypesEnum(ctx, 'storageType')).parse(args.storageType);
         (await getTypesEnum(ctx, 'storageSubType')).parse(args.storageSubType);
 
-        const storage = await createStorage(ctx, args.roomDisplay!, args.roomId!, args.roomType!, args.productType!, args.storageType!, args.storageSubType!);
-        return storage.barcode;
+        return await ctx.prisma.$transaction(async (tx: any) => {
+          const storage = await createStorage(tx, args.roomDisplay!, args.roomId!, args.roomType!, args.productType!, args.storageType!, args.storageSubType!, ctx.user);
+          return storage.barcode;
+        });
       },
     }),
     deleteStorage: t.boolean({
@@ -220,8 +222,10 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        await deleteStorage(ctx, args.barcode!);
-        return true;
+        return await ctx.prisma.$transaction(async (tx: any) => {
+          await deleteStorage(tx, args.barcode!, ctx.user);
+          return true;
+        });
       },
     }),
     restoreStorage: t.boolean({
@@ -235,20 +239,30 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        await restoreStorage(ctx, args.barcode!);
-        return true;
+        return await ctx.prisma.$transaction(async (tx: any) => {
+          await restoreStorage(tx, args.barcode!);
+          return true;
+        });
       },
     }),
   }),
 });
 
-async function createStorage (context: any, roomDisplay: string, roomId: number, roomType: string, productType: string, storageType: string, storageSubType: string) {
-  const roomTypeObj = await context.prisma.roomType.findUnique({where: {symbol: roomType}});
-  const productTypeObj = await context.prisma.productType.findUnique({where: {symbol: productType}});
-  const storageTypeObj = await context.prisma.storageType.findUnique({where: {symbol: storageType}});
-  const storageSubTypeObj = await context.prisma.storageSubType.findUnique({where: {symbol: storageSubType}});
+async function createStorage (transaction: any,
+                              roomDisplay: string,
+                              roomId: number,
+                              roomType: string,
+                              productType: string,
+                              storageType: string,
+                              storageSubType: string,
+                              user: UserInfo
+) {
+  const roomTypeObj = await transaction.roomType.findUnique({where: {symbol: roomType}});
+  const productTypeObj = await transaction.productType.findUnique({where: {symbol: productType}});
+  const storageTypeObj = await transaction.storageType.findUnique({where: {symbol: storageType}});
+  const storageSubTypeObj = await transaction.storageSubType.findUnique({where: {symbol: storageSubType}});
 
-  const lastNumber = await context.prisma.storage.aggregate({
+  const lastNumber = await transaction.storage.aggregate({
     where: {
       roomId: roomId,
       idRoomType: roomTypeObj.id,
@@ -257,7 +271,7 @@ async function createStorage (context: any, roomDisplay: string, roomId: number,
     }, _max: {numStorage: true}});
   const newNumber = lastNumber._max.numStorage ? lastNumber._max.numStorage + 1 : 1;
 
-  return await context.prisma.storage.create({
+  return await transaction.storage.create({
     data: {
       barcode: `${roomDisplay} ${roomTypeObj.shortName}${productTypeObj.shortName} ${storageTypeObj.shortName}${newNumber} ${storageSubTypeObj.shortName}`,
       numStorage: newNumber,
@@ -267,32 +281,32 @@ async function createStorage (context: any, roomDisplay: string, roomId: number,
       idProductType: productTypeObj.id,
       idStorageType: storageTypeObj.id,
       idStorageSubType: storageSubTypeObj.id,
-      createdBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
+      createdBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
       createdOn: new Date(),
     },
   });
 }
 
-async function deleteStorage (context: any, barcode: string) {
+async function deleteStorage (transaction: any, barcode: string, user: UserInfo) {
   const data = {
-    deletedBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
+    deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
     deletedOn: new Date()
   };
-  const storage = await context.prisma.storage.update({
+  const storage = await transaction.storage.update({
     where: {
       barcode: barcode
     },
     data: data
   });
-  const shelves = (await context.prisma.shelf.findMany({where: {idStorage: storage.id}}))
+  const shelves = (await transaction.shelf.findMany({where: {idStorage: storage.id}}))
     .map((shelf: { id: number; }) => shelf.id);
-  await context.prisma.shelf.updateMany({
+  await transaction.shelf.updateMany({
     where: {
       idStorage: storage.id
     },
     data: data
   });
-  await context.prisma.box.updateMany({
+  await transaction.box.updateMany({
     where: {
       idShelf: {
         in: shelves
@@ -302,8 +316,8 @@ async function deleteStorage (context: any, barcode: string) {
   });
 }
 
-async function restoreStorage (context: any, barcode: string) {
-  await context.prisma.storage.update({
+async function restoreStorage (transaction: any, barcode: string) {
+  await transaction.storage.update({
     where: {
       barcode: barcode
     },

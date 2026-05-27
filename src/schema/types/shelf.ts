@@ -52,8 +52,11 @@ builder.mutationType({
         if (!allowedType.allowsShelves) {
           throw new Error("You cannot add a shelf on this type of storage")
         }
-        const shelf = await createShelf(ctx, args.parentBarcode!, parent);
-        return shelf.barcode;
+
+        return await ctx.prisma.$transaction(async (tx: any) => {
+          const shelf = await createShelf(tx, args.parentBarcode!, parent, ctx.user);
+          return shelf.barcode;
+        });
       },
     }),
     deleteShelf: t.boolean({
@@ -67,8 +70,10 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        await deleteShelf(ctx, args.barcode!);
-        return true;
+        return await ctx.prisma.$transaction(async (tx: any) => {
+          await deleteShelf(tx, args.barcode!, ctx.user);
+          return true;
+        });
       },
     }),
     restoreShelf: t.boolean({
@@ -89,50 +94,52 @@ builder.mutationType({
         if (parent.storage.deletedBy !== null) {
           throw new Error("You cannot add a shelf on a deleted storage")
         }
-        await restoreShelf(ctx, args.barcode!);
-        return true;
+        return await ctx.prisma.$transaction(async (tx: any) => {
+          await restoreShelf(tx, args.barcode!);
+          return true;
+        });
       },
     }),
   }),
 });
 
-async function createShelf (context: any, barcode: string, parent: {id: number}) {
-  const lastNumber = await context.prisma.shelf.aggregate({where: {idStorage: parent.id}, _max: {numShelf: true}});
+async function createShelf (transaction: any, barcode: string, parent: {id: number}, user: UserInfo) {
+  const lastNumber = await transaction.shelf.aggregate({where: {idStorage: parent.id}, _max: {numShelf: true}});
   const newNumber = lastNumber._max.numShelf ? lastNumber._max.numShelf + 1 : 1;
-  return await context.prisma.shelf.create({
+  return await transaction.shelf.create({
     data: {
       idStorage: parent.id,
       barcode: `${barcode} E${newNumber}`,
       numShelf: newNumber,
-      createdBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
+      createdBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
       createdOn: new Date()
     },
   });
 }
 
-async function deleteShelf (context: any, barcode: string) {
-  const shelf = await context.prisma.shelf.update({
+async function deleteShelf (transaction: any, barcode: string, user: UserInfo) {
+  const shelf = await transaction.shelf.update({
     where: {
       barcode: barcode
     },
     data: {
-      deletedBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
+      deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
       deletedOn: new Date()
     }
   });
-  await context.prisma.box.updateMany({
+  await transaction.box.updateMany({
     where: {
       idShelf: shelf.id
     },
     data: {
-      deletedBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
+      deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
       deletedOn: new Date()
     }
   });
 }
 
-async function restoreShelf (context: any, barcode: string) {
-  await context.prisma.shelf.update({
+async function restoreShelf (transaction: any, barcode: string) {
+  await transaction.shelf.update({
     where: {
       barcode: barcode
     },
