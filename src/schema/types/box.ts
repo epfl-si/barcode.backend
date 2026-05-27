@@ -42,8 +42,11 @@ builder.mutationType({
         if (!allowedType.allowsBoxes) {
           throw new Error("You cannot add a box on this type of storage")
         }
-        const box = await createBox(ctx, args.parentBarcode!, parent);
-        return box.barcode;
+
+        return await ctx.prisma.$transaction(async (tx: any) => {
+          const box = await createBox(tx, args.parentBarcode!, parent, ctx.user);
+          return box.barcode;
+        });
       },
     }),
     deleteBox: t.boolean({
@@ -57,8 +60,10 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        await deleteBox(ctx, args.barcode!);
-        return true;
+        return await ctx.prisma.$transaction(async (tx: any) => {
+          await deleteBox(tx, args.barcode!, ctx.user);
+          return true;
+        });
       },
     }),
     restoreBox: t.boolean({
@@ -79,41 +84,44 @@ builder.mutationType({
         if (parent.shelf.deletedBy !== null || parent.shelf.storage.deletedBy !== null) {
           throw new Error("You cannot add a box on a deleted storage or shelf")
         }
-        await restoreBox(ctx, args.barcode!);
-        return true;
+
+        return await ctx.prisma.$transaction(async (tx: any) => {
+          await restoreBox(tx, args.barcode!);
+          return true;
+        });
       },
     }),
   }),
 });
 
-export async function createBox (context: any, barcode: string, parent: {id: number}) {
-  const lastNumber = await context.prisma.box.aggregate({where: {idShelf: parent.id}, _max: {numBox: true}});
+export async function createBox (transaction: any, barcode: string, parent: {id: number}, user: UserInfo) {
+  const lastNumber = await transaction.box.aggregate({where: {idShelf: parent.id}, _max: {numBox: true}});
   const newNumber = lastNumber._max.numBox ? lastNumber._max.numBox + 1 : 1;
-  return await context.prisma.box.create({
+  return await transaction.box.create({
     data: {
       idShelf: parent.id,
       barcode: `${barcode} B${newNumber}`,
       numBox: newNumber,
-      createdBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
+      createdBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
       createdOn: new Date()
     },
   });
 }
 
-export async function deleteBox (context: any, barcode: string) {
-  await context.prisma.box.update({
+export async function deleteBox (transaction: any, barcode: string, user: UserInfo) {
+  await transaction.box.update({
     where: {
       barcode: barcode
     },
     data: {
-      deletedBy: `${context.user.familyName} ${context.user.givenName} (${context.user.sciper})`,
+      deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
       deletedOn: new Date()
     }
   });
 }
 
-export async function restoreBox (context: any, barcode: string) {
-  await context.prisma.box.update({
+export async function restoreBox (transaction: any, barcode: string) {
+  await transaction.box.update({
     where: {
       barcode: barcode
     },
