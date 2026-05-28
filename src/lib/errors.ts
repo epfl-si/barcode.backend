@@ -17,6 +17,6 @@ const wellKnowsErrors: Record<string, string> = {
 export function formatPrismaError(formattedError: any, error: { originalError: { code: any; }; message: any; httpCode: number; }) {
   const errorCode: string = (error?.originalError?.code || formattedError?.extensions?.code || formattedError?.code) as string;
   const errorMessage = errorCode in wellKnowsErrors ? wellKnowsErrors[errorCode] : (error.message || 'Internal Server Error');
-  const httpCode = error.httpCode ?? (errorMessage === 'Unauthorized' ? 403 : 500);
-  return {errorCode, errorMessage};
+  const httpCode = error.httpCode ?? (errorMessage === 'Unauthorized' || errorMessage.indexOf('Not authorized to resolve') > -1 ? 403 : 500);
+  return {errorCode, errorMessage, httpCode};
 }
