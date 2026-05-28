@@ -2,24 +2,6 @@ import {builder} from "../builder";
 import {z} from 'zod';
 import {getTypesEnum} from "../../lib/enum";
 
-export async function getRoomsFromApi(search: string): Promise<any> {
-  const url = `https://api.epfl.ch/v1/rooms?query=${search}`;
-
-  const response = await fetch(url, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': 'Basic ' + Buffer.from(`${process.env.API_USER}:${process.env.API_PASSWORD}`).toString('base64')
-    }
-  });
-
-  if (!response.ok) {
-    throw new Error(`Error during fetching: ${response.status} ${response.statusText}`);
-  }
-  return response.json();
-}
-
 const StorageRef = builder.prismaObject('Storage', {
   name: 'Storage',
   fields: (t: any) => ({
@@ -231,35 +213,6 @@ builder.queryField('suggestStorage', (t) =>
         }
       });
       return results.map((item: any) => item[field]);
-    },
-  })
-);
-
-builder.queryField('suggestRoomApi', (t) =>
-  t.stringList({
-    description: 'Fetches room suggestions from API',
-    authScopes: {
-      needPermission: 'canReadStorage'
-    },
-    args: {
-      roomSearch: t.arg.string({ required: true, description: 'The partial room name to search for' }),
-    },
-    validate: z.object({
-      roomSearch: z.string().min(2),
-    }),
-    resolve: async (root, args, ctx: any) => {
-      const { roomSearch } = args;
-      try {
-        const data = await getRoomsFromApi(roomSearch);
-        if (!data || !data.rooms) {
-          return [];
-        }
-        return data.rooms.map((u: any) => u.name);
-      } catch (error) {
-        console.error("Error retrievings rooms :", error);
-
-        return [];
-      }
     },
   })
 );

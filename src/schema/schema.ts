@@ -33,5 +33,6 @@ import './types/productType';
 import './types/storageType';
 import './types/storageSubType';
 import './types/allowedTypeValues';
+import './types/suggestRoomApi';
 
 export const schema = builder.toSchema();
