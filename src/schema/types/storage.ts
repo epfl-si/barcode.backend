@@ -88,6 +88,7 @@ builder.queryField('storages', (t) =>
       productTypeSymbol: z.string().optional(),
       storageTypeSymbol: z.string().optional(),
       storageSubTypeSymbol: z.string().optional(),
+      searchTerm: z.string().optional(),
       page: z.int().nonnegative().optional(),
       pageSize: z.int().nonnegative().optional(),
       sortField: z.enum([
