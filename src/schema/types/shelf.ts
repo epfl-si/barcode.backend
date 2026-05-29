@@ -18,7 +18,7 @@ builder.prismaObject('Shelf', {
           deletedOn: ctx.user.isAdmin ? undefined : null,
         },
         orderBy: {
-          barcode: 'asc'
+          numBox: 'asc'
         }
       })
     })
