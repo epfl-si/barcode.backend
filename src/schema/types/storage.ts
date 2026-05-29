@@ -24,7 +24,7 @@ const StorageRef = builder.prismaObject('Storage', {
           deletedOn: ctx.user.isAdmin ? undefined : null,
         },
         orderBy: {
-          barcode: 'asc'
+          numShelf: 'asc'
         }
       })
     })
