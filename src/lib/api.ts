@@ -1,22 +1,20 @@
-interface ApiCallOptions extends Omit<RequestInit, 'body'> {
-  body?: any;
+interface ApiCallOptions {
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  headers?: Record<string, string>;
+  body?: Record<string, any>;
+  bearerToken?: string;
   basicAuth?: {
     username: string;
     password?: string;
   };
-  bearerToken?: string;
 }
-export async function callExternalApi<T = any>(url: string, options: ApiCallOptions = {}): Promise<T> {
-  const {
-    method = 'GET',
-    headers: customHeaders,
-    body,
-    basicAuth,
-    bearerToken,
-    ...restOptions
-  } = options;
 
-  const headers = new Headers(customHeaders as HeadersInit);
+export async function callExternalApi<T = any>(
+  url: string,
+  options: ApiCallOptions = {}
+): Promise<T> {
+  const method = options.method || 'GET';
+  const headers = new Headers(options.headers);
 
   if (!headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
@@ -26,10 +24,10 @@ export async function callExternalApi<T = any>(url: string, options: ApiCallOpti
   }
 
   if (!headers.has('Authorization')) {
-    if (bearerToken) {
-      headers.set('Authorization', `Bearer ${bearerToken}`);
-    } else if (basicAuth) {
-      const authString = Buffer.from(`${basicAuth.username}:${basicAuth.password || ''}`).toString('base64');
+    if (options.bearerToken) {
+      headers.set('Authorization', `Bearer ${options.bearerToken}`);
+    } else if (options.basicAuth) {
+      const authString = Buffer.from(`${options.basicAuth.username}:${options.basicAuth.password || ''}`).toString('base64');
       headers.set('Authorization', `Basic ${authString}`);
     }
   }
@@ -37,11 +35,10 @@ export async function callExternalApi<T = any>(url: string, options: ApiCallOpti
   const fetchOptions: RequestInit = {
     method,
     headers,
-    ...restOptions,
   };
 
-  if (body && ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())) {
-    fetchOptions.body = JSON.stringify(body);
+  if (options.body && ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())) {
+    fetchOptions.body = JSON.stringify(options.body);
   }
 
   const response = await fetch(url, fetchOptions);
@@ -57,7 +54,6 @@ export async function getRoomsFromApi(search: string): Promise<any> {
   const url = `https://api.epfl.ch/v1/rooms?query=${encodeURIComponent(search)}`;
 
   return callExternalApi(url, {
-    method: 'GET',
     basicAuth: {
       username: process.env.API_USER || '',
       password: process.env.API_PASSWORD || ''
