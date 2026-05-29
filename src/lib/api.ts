@@ -9,10 +9,10 @@ interface ApiCallOptions {
   };
 }
 
-export async function callExternalApi<T = any>(
+export async function callExternalApi(
   url: string,
   options: ApiCallOptions = {}
-): Promise<T> {
+){
   const method = options.method || 'GET';
   const headers = new Headers(options.headers);
 
