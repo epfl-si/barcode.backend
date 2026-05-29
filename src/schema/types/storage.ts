@@ -88,7 +88,10 @@ builder.queryField('storages', (t) =>
       storageSubTypeSymbol: z.string().optional(),
       page: z.int().nonnegative().optional(),
       pageSize: z.int().nonnegative().optional(),
-      sortField: z.enum(["barcode", "roomDisplay", "roomType", "productType", "storageType", "storageSubType", "createdBy", "createdOn", "deletedBy"]).optional(),
+      sortField: z.enum([
+        "barcode", "roomDisplay", "roomType", "productType", "storageType", "storageSubType",
+        "createdBy", "createdOn", "deletedBy", "deletedOn"
+      ]).optional(),
       sortDirection: z.enum(["asc","desc"]).optional()
     }),
     authScopes: {
@@ -131,6 +134,10 @@ builder.queryField('storages', (t) =>
             return { storageType: { symbol: direction } };
           case 'storageSubType':
             return { storageSubType: { symbol: direction } };
+          case 'createdOn':
+            return { createdOn: direction };
+          case 'deletedOn':
+            return { deletedOn: direction };
           default:
             return { createdOn: 'desc' };
         }
