@@ -24,20 +24,14 @@ builder.queryField('suggestRoomApi', (t) =>
     }),
     resolve: async (root, args, ctx: any) => {
       const { roomSearch } = args;
-      try {
-        const data = await getRoomsFromApi(roomSearch);
-        if (!data || !data.rooms) {
-          return [];
-        }
-        return data.rooms.map((u: any) => ({
-          id: Number(u.id),
-          name: u.name
-        }));
-      } catch (error) {
-        console.error("Error retrievings rooms :", error);
-
+      const data = await getRoomsFromApi(roomSearch);
+      if (!data || !data.rooms) {
         return [];
       }
+      return data.rooms.map((u: { id: number, name: string }) => ({
+        id: Number(u.id),
+        name: u.name
+      }));
     },
   })
 );
