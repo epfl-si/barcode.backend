@@ -273,7 +273,7 @@ async function createStorage (transaction: any,
 
   return await transaction.storage.create({
     data: {
-      barcode: `${roomDisplay} ${roomTypeObj.shortName}${productTypeObj.shortName} ${storageTypeObj.shortName}${newNumber} ${storageSubTypeObj.shortName}`,
+      barcode: `${roomDisplay.replaceAll(' ', '.')} ${roomTypeObj.shortName}${productTypeObj.shortName} ${storageTypeObj.shortName}${newNumber} ${storageSubTypeObj.shortName}`,
       numStorage: newNumber,
       roomId: roomId,
       roomDisplay: roomDisplay,
