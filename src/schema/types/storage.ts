@@ -1,6 +1,7 @@
 import {builder} from "../builder";
 import {z} from 'zod';
 import {getTypesEnum} from "../../lib/enum";
+import {getRoomFromApiById} from "../../lib/api";
 
 const StorageRef = builder.prismaObject('Storage', {
   name: 'Storage',
@@ -184,7 +185,6 @@ builder.mutationType({
       },
       args: {
         roomId: t.arg.int(),
-        roomDisplay: t.arg.string(),
         roomType: t.arg.string(),
         productType: t.arg.string(),
         storageType: t.arg.string(),
@@ -192,7 +192,6 @@ builder.mutationType({
       },
       validate: z.object({
         roomId: z.int().nonnegative(),
-        roomDisplay: z.string().nonempty(),
         roomType: z.string().nonempty(),
         productType: z.string().nonempty(),
         storageType: z.string().nonempty(),
@@ -205,8 +204,12 @@ builder.mutationType({
         (await getTypesEnum(ctx, 'storageType')).parse(args.storageType);
         (await getTypesEnum(ctx, 'storageSubType')).parse(args.storageSubType);
 
+        const room = await getRoomFromApiById(args.roomId!);
+        if (!room || !room.name) {
+          throw new Error("The selected room doesn't exist.");
+        }
         return await ctx.prisma.$transaction(async (tx: any) => {
-          const storage = await createStorage(tx, args.roomDisplay!, args.roomId!, args.roomType!, args.productType!, args.storageType!, args.storageSubType!, ctx.user);
+          const storage = await createStorage(tx, room.name, args.roomId!, args.roomType!, args.productType!, args.storageType!, args.storageSubType!, ctx.user);
           return storage.barcode;
         });
       },

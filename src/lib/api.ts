@@ -42,16 +42,23 @@ export async function callExternalApi(
   }
 
   const response = await fetch(url, fetchOptions);
-
-  if (!response.ok) {
-    throw new Error(`API Error [${method}] ${url}: ${response.status} ${response.statusText}`);
-  }
-
   return response.json();
 }
 
 export async function getRoomsFromApi(search: string): Promise<any> {
   const url = `https://api.epfl.ch/v1/rooms?query=${encodeURIComponent(search)}`;
+
+  return callExternalApi(url, {
+    basicAuth: {
+      username: process.env.API_USER || '',
+      password: process.env.API_PASSWORD || ''
+    }
+  });
+}
+
+
+export async function getRoomFromApiById(id: number): Promise<any> {
+  const url = `https://api.epfl.ch/v1/rooms/${id}`;
 
   return callExternalApi(url, {
     basicAuth: {
