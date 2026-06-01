@@ -14,7 +14,7 @@ builder.queryField('suggestRoomApi', (t) =>
     type: [RoomApiSuggestionRef],
     description: 'Fetches room suggestions from API',
     authScopes: {
-      needPermission: 'canReadStorage'
+      needPermission: 'canCreateStorage'
     },
     args: {
       roomSearch: t.arg.string({ required: true, description: 'The partial room name to search for' }),
