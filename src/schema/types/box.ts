@@ -104,8 +104,8 @@ export async function createBox (transaction: any, barcode: string, parent: {id:
       barcode: `${barcode} B${newNumber}`,
       numBox: newNumber,
       createdBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
-      createdOn: new Date()
-      // TODO Add RMM status ToBeCreated
+      createdOn: new Date(),
+      rmmStatus: 'ToBeCreated'
     },
   });
 }
@@ -117,8 +117,8 @@ export async function deleteBox (transaction: any, barcode: string, user: UserIn
     },
     data: {
       deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
-      deletedOn: new Date()
-      // TODO Add RMM status ToBoDeleted
+      deletedOn: new Date(),
+      rmmStatus: 'ToBoDeleted'
     }
   });
 }
@@ -130,8 +130,8 @@ export async function restoreBox (transaction: any, barcode: string) {
     },
     data: {
       deletedBy: null,
-      deletedOn: null
-      // TODO Add RMM status ToBeCreated
+      deletedOn: null,
+      rmmStatus: 'ToBeCreated'
     }
   });
 }

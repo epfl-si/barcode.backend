@@ -287,7 +287,7 @@ async function createStorage (transaction: any,
       idStorageSubType: storageSubTypeObj.id,
       createdBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
       createdOn: new Date(),
-      // TODO Add RMM status ToBeCreated
+      rmmStatus: 'ToBeCreated'
     },
   });
 }
@@ -295,8 +295,8 @@ async function createStorage (transaction: any,
 async function deleteStorage (transaction: any, barcode: string, user: UserInfo) {
   const data = {
     deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
-    deletedOn: new Date()
-    // TODO Add RMM status ToBoDeleted
+    deletedOn: new Date(),
+    rmmStatus: 'ToBoDeleted'
   };
   const storage = await transaction.storage.update({
     where: {
@@ -329,8 +329,8 @@ async function restoreStorage (transaction: any, barcode: string) {
     },
     data: {
       deletedBy: null,
-      deletedOn: null
-      // TODO Add RMM status ToBeCreated
+      deletedOn: null,
+      rmmStatus: 'ToBeCreated'
     }
   });
 }
