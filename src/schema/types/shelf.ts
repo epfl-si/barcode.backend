@@ -70,6 +70,7 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
+        // TODO Check RMM if barcode is empty and its children : TRUE --> make transaction, FALSE --> throw error
         return await ctx.prisma.$transaction(async (tx: any) => {
           await deleteShelf(tx, args.barcode!, ctx.user);
           return true;
@@ -113,28 +114,28 @@ async function createShelf (transaction: any, barcode: string, parent: {id: numb
       numShelf: newNumber,
       createdBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
       createdOn: new Date()
+      // TODO Add RMM status ToBeCreated
     },
   });
 }
 
 async function deleteShelf (transaction: any, barcode: string, user: UserInfo) {
+  const data = {
+    deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
+    deletedOn: new Date()
+    // TODO Add RMM status ToBoDeleted
+  };
   const shelf = await transaction.shelf.update({
     where: {
       barcode: barcode
     },
-    data: {
-      deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
-      deletedOn: new Date()
-    }
+    data: data
   });
   await transaction.box.updateMany({
     where: {
       idShelf: shelf.id
     },
-    data: {
-      deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
-      deletedOn: new Date()
-    }
+    data: data
   });
 }
 
@@ -146,6 +147,7 @@ async function restoreShelf (transaction: any, barcode: string) {
     data: {
       deletedBy: null,
       deletedOn: null
+      // TODO Add RMM status ToBeCreated
     }
   });
 }

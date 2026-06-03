@@ -225,6 +225,7 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
+        // TODO Check RMM if barcode is empty and its children : TRUE --> make transaction, FALSE --> throw error
         return await ctx.prisma.$transaction(async (tx: any) => {
           await deleteStorage(tx, args.barcode!, ctx.user);
           return true;
@@ -286,6 +287,7 @@ async function createStorage (transaction: any,
       idStorageSubType: storageSubTypeObj.id,
       createdBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
       createdOn: new Date(),
+      // TODO Add RMM status ToBeCreated
     },
   });
 }
@@ -294,6 +296,7 @@ async function deleteStorage (transaction: any, barcode: string, user: UserInfo)
   const data = {
     deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
     deletedOn: new Date()
+    // TODO Add RMM status ToBoDeleted
   };
   const storage = await transaction.storage.update({
     where: {
@@ -327,6 +330,21 @@ async function restoreStorage (transaction: any, barcode: string) {
     data: {
       deletedBy: null,
       deletedOn: null
+      // TODO Add RMM status ToBeCreated
     }
   });
 }
+
+
+// TODO CRONJOB create --> for all ToBeCreated if :
+//  - OK : barcode doesn't exists --> CREATED
+//  - KO : error barcode already exists and its status is active --> status CREATED
+//  - KO : error barcode already exists and its status is inactive --> status RestoreNotifSent --> send email
+
+// TODO CRONJOB delete : all ToBeDeleted --> email --> DeleteNotifSent
+
+// TODO CRONJOB Check delete --> for all DeleteNotifSent if :
+//  - barcode doesn't exists or barcode exists and status inactive --> status DELETED
+
+// TODO CRONJOB Check creation --> for all RestoreNotifSent if :
+//  - barcode exists and status active --> status CREATED

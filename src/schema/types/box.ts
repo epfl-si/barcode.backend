@@ -60,6 +60,7 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
+        // TODO Check RMM if barcode is empty : TRUE --> make transaction, FALSE --> throw error
         return await ctx.prisma.$transaction(async (tx: any) => {
           await deleteBox(tx, args.barcode!, ctx.user);
           return true;
@@ -104,6 +105,7 @@ export async function createBox (transaction: any, barcode: string, parent: {id:
       numBox: newNumber,
       createdBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
       createdOn: new Date()
+      // TODO Add RMM status ToBeCreated
     },
   });
 }
@@ -116,6 +118,7 @@ export async function deleteBox (transaction: any, barcode: string, user: UserIn
     data: {
       deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
       deletedOn: new Date()
+      // TODO Add RMM status ToBoDeleted
     }
   });
 }
@@ -128,6 +131,7 @@ export async function restoreBox (transaction: any, barcode: string) {
     data: {
       deletedBy: null,
       deletedOn: null
+      // TODO Add RMM status ToBeCreated
     }
   });
 }
