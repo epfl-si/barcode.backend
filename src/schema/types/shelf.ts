@@ -113,8 +113,8 @@ async function createShelf (transaction: any, barcode: string, parent: {id: numb
       barcode: `${barcode} E${newNumber}`,
       numShelf: newNumber,
       createdBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
-      createdOn: new Date()
-      // TODO Add RMM status ToBeCreated
+      createdOn: new Date(),
+      rmmStatus: 'ToBeCreated'
     },
   });
 }
@@ -122,8 +122,8 @@ async function createShelf (transaction: any, barcode: string, parent: {id: numb
 async function deleteShelf (transaction: any, barcode: string, user: UserInfo) {
   const data = {
     deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
-    deletedOn: new Date()
-    // TODO Add RMM status ToBoDeleted
+    deletedOn: new Date(),
+    rmmStatus: 'ToBoDeleted'
   };
   const shelf = await transaction.shelf.update({
     where: {
@@ -146,8 +146,8 @@ async function restoreShelf (transaction: any, barcode: string) {
     },
     data: {
       deletedBy: null,
-      deletedOn: null
-      // TODO Add RMM status ToBeCreated
+      deletedOn: null,
+      rmmStatus: 'ToBeCreated'
     }
   });
 }
