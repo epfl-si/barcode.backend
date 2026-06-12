@@ -296,7 +296,7 @@ async function deleteStorage (transaction: any, barcode: string, user: UserInfo)
   const data = {
     deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
     deletedOn: new Date(),
-    rmmStatus: 'ToBoDeleted'
+    rmmStatus: 'ToBeDeleted'
   };
   const storage = await transaction.storage.update({
     where: {
