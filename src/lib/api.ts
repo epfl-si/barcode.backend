@@ -1,3 +1,5 @@
+import CryptoJS from "crypto-js";
+
 interface ApiCallOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
   headers?: Record<string, string>;
@@ -68,5 +70,36 @@ export async function getRoomFromApiById(id: number): Promise<any> {
       username: process.env.API_USER || '',
       password: process.env.API_PASSWORD || ''
     }
+  });
+}
+
+function getAccessSignature(date: string, uri: string, body: Record<string, string>): string {
+  let signature = `${date}:${uri}:${getQueryString(body, ':')}:timezoneoffset:0:`;
+  const binary = CryptoJS.HmacSHA256(signature, process.env.RMM_ENCRYPTED_KEY!);
+  return CryptoJS.enc.Base64.stringify(binary);
+}
+
+function getQueryString (body: Record<string, string>, separator: string) {
+  const queryString: string[] = [];
+  const sortedKeys = Object.keys(body).sort();
+  for (const key of sortedKeys) {
+    queryString.push(`${key}${separator === ':' ? ':' : '='}${body[key]}`);
+  }
+  return queryString.join(separator);
+}
+
+export async function callRMM(uri: string, method: 'GET' | 'POST', body: Record<string, string>) {
+  const url = `${process.env.RMM_URL}${uri}?${getQueryString(body, '&')}&timezoneoffset=0`;
+  const date = String(Date.now());
+
+  const authorization = process.env.RMM_ACCESS_KEY + ":" + getAccessSignature(date, uri, body);
+
+  return await callExternalApi(url, {
+    headers: {
+      Accept: "application/vnd.sciquest-v1+json",
+      "x-sciq-date": date,
+      Authorization: authorization
+    },
+    method: method
   });
 }
