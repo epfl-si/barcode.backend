@@ -9,7 +9,7 @@ interface ApiCallOptions {
   };
 }
 
-export async function callExternalApi(
+async function callExternalApi(
   url: string,
   options: ApiCallOptions = {}
 ){
@@ -42,13 +42,17 @@ export async function callExternalApi(
   }
 
   const response = await fetch(url, fetchOptions);
-  return response.json();
+  if (response.ok) {
+    return await response.json();
+  } else {
+    throw new Error(`Failed to fetch external API: ${url} (${response.status})`);
+  }
 }
 
 export async function getRoomsFromApi(search: string): Promise<any> {
   const url = `https://api.epfl.ch/v1/rooms?query=${encodeURIComponent(search)}`;
 
-  return callExternalApi(url, {
+  return await callExternalApi(url, {
     basicAuth: {
       username: process.env.API_USER || '',
       password: process.env.API_PASSWORD || ''
@@ -56,11 +60,10 @@ export async function getRoomsFromApi(search: string): Promise<any> {
   });
 }
 
-
 export async function getRoomFromApiById(id: number): Promise<any> {
   const url = `https://api.epfl.ch/v1/rooms/${id}`;
 
-  return callExternalApi(url, {
+  return await callExternalApi(url, {
     basicAuth: {
       username: process.env.API_USER || '',
       password: process.env.API_PASSWORD || ''
