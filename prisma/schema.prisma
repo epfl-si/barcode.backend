@@ -93,7 +93,7 @@ model Storage {
   id         Int           @id @default(autoincrement()) @map("id")
   barcode    String        @unique @map("barcode") @db.VarChar(64)
   numStorage Int           @map("num_storage")
-  rmmStatus  RMMCodeStatus
+  rmmStatus  RMMCodeStatus @map("rmm_status")
 
   roomId           Int    @map("room_id")
   roomDisplay      String @map("room_display") @db.VarChar(32)
@@ -121,7 +121,7 @@ model Shelf {
   idStorage Int           @map("id_storage")
   barcode   String        @unique @map("barcode") @db.VarChar(64)
   numShelf  Int           @map("num_shelf")
-  rmmStatus RMMCodeStatus
+  rmmStatus RMMCodeStatus @map("rmm_status")
 
   createdBy String    @map("created_by")
   createdOn DateTime  @default(now()) @map("created_on")
@@ -139,7 +139,7 @@ model Box {
   idShelf   Int           @map("id_shelf")
   barcode   String        @unique @map("barcode") @db.VarChar(64)
   numBox    Int           @map("num_box")
-  rmmStatus RMMCodeStatus
+  rmmStatus RMMCodeStatus @map("rmm_status")
 
   createdBy String    @map("created_by")
   createdOn DateTime  @default(now()) @map("created_on")
