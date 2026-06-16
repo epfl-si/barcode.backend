@@ -2,6 +2,7 @@ import {builder} from "../builder";
 import {z} from 'zod';
 import {getTypesEnum} from "../../lib/enum";
 import {getRoomFromApiById} from "../../lib/api";
+import {getUserString} from "../../lib/user";
 
 const StorageRef = builder.prismaObject('Storage', {
   name: 'Storage',
@@ -294,7 +295,7 @@ async function createStorage (transaction: any,
 
 async function deleteStorage (transaction: any, barcode: string, user: UserInfo) {
   const data = {
-    deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
+    deletedBy: getUserString(user),
     deletedOn: new Date(),
     rmmStatus: 'ToBeDeleted'
   };

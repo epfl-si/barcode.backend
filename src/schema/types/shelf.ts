@@ -1,5 +1,6 @@
 import {builder} from "../builder";
 import {z} from 'zod';
+import {getUserString} from "../../lib/user";
 
 builder.prismaObject('Shelf', {
   name: 'Shelf',
@@ -112,7 +113,7 @@ async function createShelf (transaction: any, barcode: string, parent: {id: numb
       idStorage: parent.id,
       barcode: `${barcode} E${newNumber}`,
       numShelf: newNumber,
-      createdBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
+      createdBy: getUserString(user),
       createdOn: new Date(),
       rmmStatus: 'ToBeCreated'
     },
@@ -121,7 +122,7 @@ async function createShelf (transaction: any, barcode: string, parent: {id: numb
 
 async function deleteShelf (transaction: any, barcode: string, user: UserInfo) {
   const data = {
-    deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
+    deletedBy: getUserString(user),
     deletedOn: new Date(),
     rmmStatus: 'ToBeDeleted'
   };

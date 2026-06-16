@@ -1,4 +1,5 @@
 import {prisma} from "../schema/prisma";
+import {getUserString} from "./user";
 
 /**
  * Create and return a Prisma client instance scoped to a specific user,
@@ -52,7 +53,7 @@ export function getPrismaForUser(user: UserInfo) {
           const id = idKey ? source[idKey] : null;
           await prisma.mutationLog.create({
             data: {
-              modifiedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
+              modifiedBy: getUserString(user),
               modifiedOn: new Date(),
               tableName: model,
               tableId: id,

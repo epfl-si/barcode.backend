@@ -1,6 +1,7 @@
 import {builder} from "../builder";
 import {z} from 'zod';
 import {callRMM} from "../../lib/api";
+import {getUserString} from "../../lib/user";
 
 builder.prismaObject('Box', {
   name: 'Box',
@@ -107,7 +108,7 @@ export async function createBox (transaction: any, barcode: string, parent: {id:
       idShelf: parent.id,
       barcode: `${barcode} B${newNumber}`,
       numBox: newNumber,
-      createdBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
+      createdBy: getUserString(user),
       createdOn: new Date(),
       rmmStatus: 'ToBeCreated'
     },
@@ -120,7 +121,7 @@ export async function deleteBox (transaction: any, barcode: string, user: UserIn
       barcode: barcode
     },
     data: {
-      deletedBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
+      deletedBy: getUserString(user),
       deletedOn: new Date(),
       rmmStatus: 'ToBeDeleted'
     }
