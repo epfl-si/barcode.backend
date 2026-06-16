@@ -1,6 +1,7 @@
 import {builder} from "../builder";
 import {z} from 'zod';
-import {callRMM} from "../../lib/api";
+import {RMMCodeStatus} from '../../../generated/prisma';
+import {callRmmAndGetStatusForDeletion} from "../../lib/rmmStatusAnalyser";
 import {getUserString} from "../../lib/user";
 
 builder.prismaObject('Box', {
@@ -62,14 +63,14 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        // TODO Check RMM if barcode is empty : TRUE --> make transaction, FALSE --> throw error
-        const rmmResult = await callRMM("/epfl/erd-services/json/containersearch/search", "POST", {barcodes: '17.-1.G5-G9V.1'});
-        if (rmmResult.status === 200) {
-          return await ctx.prisma.$transaction(async (tx: any) => {
-            await deleteBox(tx, args.barcode!, ctx.user);
-            return true;
-          });
-        }
+        const box = await ctx.prisma.box.findUnique({where: {barcode: args.barcode}});
+
+        const codes = [{barcode: box.barcode}];
+        const status = await callRmmAndGetStatusForDeletion(ctx, codes);
+        return await ctx.prisma.$transaction(async (tx: any) => {
+          await deleteBox(tx, args.barcode!, ctx.user, status);
+          return true;
+        });
       },
     }),
     restoreBox: t.boolean({
@@ -115,7 +116,7 @@ export async function createBox (transaction: any, barcode: string, parent: {id:
   });
 }
 
-export async function deleteBox (transaction: any, barcode: string, user: UserInfo) {
+export async function deleteBox (transaction: any, barcode: string, user: UserInfo, status: 'ToBeDeleted' | 'Deleted') {
   await transaction.box.update({
     where: {
       barcode: barcode
@@ -123,7 +124,7 @@ export async function deleteBox (transaction: any, barcode: string, user: UserIn
     data: {
       deletedBy: getUserString(user),
       deletedOn: new Date(),
-      rmmStatus: 'ToBeDeleted'
+      rmmStatus: status
     }
   });
 }
@@ -137,6 +138,21 @@ export async function restoreBox (transaction: any, barcode: string) {
       deletedBy: null,
       deletedOn: null,
       rmmStatus: 'ToBeCreated'
+    }
+  });
+}
+
+export async function getBoxesByRMMStatus (prisma: any, status: RMMCodeStatus) {
+  return await prisma.box.findMany({where: {rmmStatus: status}});
+}
+
+export async function setBoxRMMCode (transaction: any, barcode: string[], status: RMMCodeStatus) {
+  await transaction.box.updateMany({
+    where: {
+      barcode: {in: barcode}
+    },
+    data: {
+      rmmStatus: status
     }
   });
 }
