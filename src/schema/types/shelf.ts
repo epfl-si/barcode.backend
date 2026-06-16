@@ -1,5 +1,7 @@
 import {builder} from "../builder";
 import {z} from 'zod';
+import { RMMCodeStatus } from '../../../generated/prisma';
+import {callRmmAndGetStatusForDeletion} from "../../lib/rmmStatusAnalyser";
 import {getUserString} from "../../lib/user";
 
 builder.prismaObject('Shelf', {
@@ -71,9 +73,16 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        // TODO Check RMM if barcode is empty and its children : TRUE --> make transaction, FALSE --> throw error
+        const shelf = await ctx.prisma.shelf.findUnique({where: {barcode: args.barcode}});
+        const boxes = await ctx.prisma.box.findMany({ where: { idShelf: shelf.id } });
+
+        const codes = [
+          {barcode: shelf.barcode},
+          ...boxes.map((code: { barcode: string; }) => {return {barcode: code.barcode}})
+        ];
+        const status = await callRmmAndGetStatusForDeletion(ctx, codes);
         return await ctx.prisma.$transaction(async (tx: any) => {
-          await deleteShelf(tx, args.barcode!, ctx.user);
+          await deleteShelf(tx, args.barcode!, ctx.user, status);
           return true;
         });
       },
@@ -120,11 +129,11 @@ async function createShelf (transaction: any, barcode: string, parent: {id: numb
   });
 }
 
-async function deleteShelf (transaction: any, barcode: string, user: UserInfo) {
+async function deleteShelf (transaction: any, barcode: string, user: UserInfo, status: 'ToBeDeleted' | 'Deleted') {
   const data = {
     deletedBy: getUserString(user),
     deletedOn: new Date(),
-    rmmStatus: 'ToBeDeleted'
+    rmmStatus: status
   };
   const shelf = await transaction.shelf.update({
     where: {
@@ -149,6 +158,21 @@ async function restoreShelf (transaction: any, barcode: string) {
       deletedBy: null,
       deletedOn: null,
       rmmStatus: 'ToBeCreated'
+    }
+  });
+}
+
+export async function getShelvesByRMMStatus (prisma: any, status: RMMCodeStatus) {
+  return await prisma.shelf.findMany({where: {rmmStatus: status}});
+}
+
+export async function setShelfRMMCode (transaction: any, barcode: string[], status: RMMCodeStatus) {
+  await transaction.shelf.updateMany({
+    where: {
+      barcode: {in: barcode}
+    },
+    data: {
+      rmmStatus: status
     }
   });
 }

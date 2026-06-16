@@ -2,6 +2,8 @@ import {builder} from "../builder";
 import {z} from 'zod';
 import {getTypesEnum} from "../../lib/enum";
 import {getRoomFromApiById} from "../../lib/api";
+import {RMMCodeStatus} from '../../../generated/prisma';
+import {callRmmAndGetStatusForDeletion} from "../../lib/rmmStatusAnalyser";
 import {getUserString} from "../../lib/user";
 
 const StorageRef = builder.prismaObject('Storage', {
@@ -226,9 +228,19 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        // TODO Check RMM if barcode is empty and its children : TRUE --> make transaction, FALSE --> throw error
+        const storage = await ctx.prisma.storage.findUnique({ where: { barcode: args.barcode } });
+        const shelves = await ctx.prisma.shelf.findMany({where: {idStorage: storage.id}});
+        const shelvesId = shelves.map((shelf: { id: number; }) => shelf.id);
+        const boxes = await ctx.prisma.box.findMany({ where: { idShelf: { in: shelvesId } } });
+
+        const codes = [
+          {barcode: storage.barcode},
+          ...shelves.map((code: { barcode: string; }) => {return {barcode: code.barcode}}),
+          ...boxes.map((code: { barcode: string; }) => {return {barcode: code.barcode}})
+        ];
+        const status = await callRmmAndGetStatusForDeletion(ctx, codes);
         return await ctx.prisma.$transaction(async (tx: any) => {
-          await deleteStorage(tx, args.barcode!, ctx.user);
+          await deleteStorage(tx, args.barcode!, shelvesId, ctx.user, status);
           return true;
         });
       },
@@ -286,18 +298,18 @@ async function createStorage (transaction: any,
       idProductType: productTypeObj.id,
       idStorageType: storageTypeObj.id,
       idStorageSubType: storageSubTypeObj.id,
-      createdBy: `${user.familyName} ${user.givenName} (${user.sciper})`,
+      createdBy: getUserString(user),
       createdOn: new Date(),
       rmmStatus: 'ToBeCreated'
     },
   });
 }
 
-async function deleteStorage (transaction: any, barcode: string, user: UserInfo) {
+async function deleteStorage (transaction: any, barcode: string, shelvesId: number[], user: UserInfo, status: 'ToBeDeleted' | 'Deleted') {
   const data = {
     deletedBy: getUserString(user),
     deletedOn: new Date(),
-    rmmStatus: 'ToBeDeleted'
+    rmmStatus: status
   };
   const storage = await transaction.storage.update({
     where: {
@@ -305,8 +317,6 @@ async function deleteStorage (transaction: any, barcode: string, user: UserInfo)
     },
     data: data
   });
-  const shelves = (await transaction.shelf.findMany({where: {idStorage: storage.id}}))
-    .map((shelf: { id: number; }) => shelf.id);
   await transaction.shelf.updateMany({
     where: {
       idStorage: storage.id
@@ -316,7 +326,7 @@ async function deleteStorage (transaction: any, barcode: string, user: UserInfo)
   await transaction.box.updateMany({
     where: {
       idShelf: {
-        in: shelves
+        in: shelvesId
       }
     },
     data: data
@@ -336,13 +346,27 @@ async function restoreStorage (transaction: any, barcode: string) {
   });
 }
 
+export async function getStoragesByRMMStatus (prisma: any, status: RMMCodeStatus) {
+  return await prisma.storage.findMany({where: {rmmStatus: status}});
+}
+
+export async function setStorageRMMCode (transaction: any, barcode: string[], status: RMMCodeStatus) {
+  await transaction.storage.updateMany({
+    where: {
+      barcode: {in: barcode}
+    },
+    data: {
+      rmmStatus: status
+    }
+  });
+}
 
 // TODO CRONJOB create --> for all ToBeCreated if :
 //  - OK : barcode doesn't exists --> CREATED
 //  - KO : error barcode already exists and its status is active --> status CREATED
 //  - KO : error barcode already exists and its status is inactive --> status RestoreNotifSent --> send email
 
-// TODO CRONJOB delete : all ToBeDeleted --> email --> DeleteNotifSent
+// ---- TODO CRONJOB delete : all ToBeDeleted --> email --> DeleteNotifSent
 
 // TODO CRONJOB Check delete --> for all DeleteNotifSent if :
 //  - barcode doesn't exists or barcode exists and status inactive --> status DELETED
