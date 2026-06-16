@@ -30,12 +30,13 @@ export async function authenticateFromBearerToken(req: Request<{}, any, any, Par
     username: ( authenticationResult.unique_name ||
       authenticationResult.gaspar ),  // EPFL-ism in Entra
     name: authenticationResult.given_name + ' ' + authenticationResult.family_name,
-    sciper: authenticationResult.uniqueid
+    sciper: authenticationResult.uniqueid,
+    userEmail: authenticationResult.mail
   };
 
-  const hasRoleAdmin = user.groups.indexOf((process.env.ADMIN_GROUP ?? '')) > -1;
-  const hasRoleCosec = user.groups.indexOf((process.env.COSEC_GROUP ?? '')) > -1;
-  const hasRoleReadOnly = user.groups.indexOf((process.env.RO_GROUP ?? '')) > -1;
+  const hasRoleAdmin = user.groups!.indexOf((process.env.ADMIN_GROUP ?? '')) > -1;
+  const hasRoleCosec = user.groups!.indexOf((process.env.COSEC_GROUP ?? '')) > -1;
+  const hasRoleReadOnly = user.groups!.indexOf((process.env.RO_GROUP ?? '')) > -1;
 
   user.isAdmin = hasRoleAdmin;
   user.isCosec = hasRoleCosec;
