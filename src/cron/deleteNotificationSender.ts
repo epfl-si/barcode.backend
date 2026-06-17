@@ -27,14 +27,14 @@ async function notifyForToBeDeletedCodes () {
   }
   console.log(`Sending notification for ToBeDeleted codes: ${message.join('\n')}`);
   await sendEmailForToBeDeletedCodes(message.join('<br/>'));
-    await prisma.$transaction(async (tx) => {
-      await setLocationsRMMCode(tx, 'storage', storages.map((code: { barcode: string; }) => code.barcode), 'DeleteNotifSent');
-      await setLocationsRMMCode(tx, 'shelf', shelves.map((code: { barcode: string; }) => code.barcode), 'DeleteNotifSent');
-      await setLocationsRMMCode(tx, 'box', boxes.map((code: { barcode: string; }) => code.barcode), 'DeleteNotifSent');
-    },{
-      maxWait: 10000, // Max time (ms) to wait for a transaction slot (default: 2000)
-      timeout: 30000, // Max time (ms) the transaction can run (default: 5000)
-    });
+  await prisma.$transaction(async (tx) => {
+    await setLocationsRMMCode(tx, 'storage', storages.map((code: { barcode: string; }) => code.barcode), 'DeleteNotifSent');
+    await setLocationsRMMCode(tx, 'shelf', shelves.map((code: { barcode: string; }) => code.barcode), 'DeleteNotifSent');
+    await setLocationsRMMCode(tx, 'box', boxes.map((code: { barcode: string; }) => code.barcode), 'DeleteNotifSent');
+  },{
+    maxWait: 10000, // Max time (ms) to wait for a transaction slot (default: 2000)
+    timeout: 30000, // Max time (ms) the transaction can run (default: 5000)
+  });
 }
 
 notifyForToBeDeletedCodes();
