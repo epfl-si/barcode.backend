@@ -238,7 +238,7 @@ builder.mutationType({
           ...shelves.map((code: { barcode: string; }) => {return {barcode: code.barcode}}),
           ...boxes.map((code: { barcode: string; }) => {return {barcode: code.barcode}})
         ];
-        const status = await callRmmAndGetStatusForDeletion(ctx, codes);
+        const status = await callRmmAndGetStatusForDeletion(codes);
         return await ctx.prisma.$transaction(async (tx: any) => {
           await deleteStorage(tx, args.barcode!, shelvesId, ctx.user, status);
           return true;
