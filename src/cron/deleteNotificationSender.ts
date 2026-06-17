@@ -1,9 +1,7 @@
 import {getPrismaForUser} from "../lib/auditablePrisma";
-import {getStoragesByRMMStatus, setStorageRMMCode} from "../schema/types/storage";
-import {getBoxesByRMMStatus, setBoxRMMCode} from "../schema/types/box";
-import {getShelvesByRMMStatus, setShelfRMMCode} from "../schema/types/shelf";
 import {sendEmailForToBeDeletedCodes} from "../lib/email/mailer";
 import {getFormattedDate} from "../lib/date";
+import {getLocationsByRMMStatus, setLocationsRMMCode} from "../schema/types/location";
 
 const cronUser: UserInfo = {
   username: 'LHD-cron'
@@ -16,9 +14,9 @@ const prisma = getPrismaForUser(cronUser);
  * For each code, notify Catalyse
  */
 async function notifyForToBeDeletedCodes () {
-  const storages =  await getStoragesByRMMStatus(prisma, 'ToBeDeleted');
-  const shelves =  await getShelvesByRMMStatus(prisma, 'ToBeDeleted');
-  const boxes =  await getBoxesByRMMStatus(prisma, 'ToBeDeleted');
+  const storages =  await getLocationsByRMMStatus(prisma, 'storage', 'ToBeDeleted');
+  const shelves =  await getLocationsByRMMStatus(prisma, 'shelf', 'ToBeDeleted');
+  const boxes =  await getLocationsByRMMStatus(prisma, 'box', 'ToBeDeleted');
 
   const message: string[] = storages.map((code: { barcode: string; deletedOn: any; deletedBy: string; }) => `${code.barcode} - Supprime le ${getFormattedDate(code.deletedOn)} par ${code.deletedBy}`);
   message.push(...shelves.map((code: { barcode: string; deletedOn: Date; deletedBy: string; }) => `${code.barcode} - Supprime le ${getFormattedDate(code.deletedOn)} par ${code.deletedBy}`));
@@ -30,9 +28,9 @@ async function notifyForToBeDeletedCodes () {
   console.log(`Sending notification for ToBeDeleted codes: ${message.join('\n')}`);
   await sendEmailForToBeDeletedCodes(message.join('<br/>'));
     await prisma.$transaction(async (tx) => {
-      await setStorageRMMCode(tx, storages.map((code: { barcode: string; }) => code.barcode), 'DeleteNotifSent');
-      await setShelfRMMCode(tx, shelves.map((code: { barcode: string; }) => code.barcode), 'DeleteNotifSent');
-      await setBoxRMMCode(tx, boxes.map((code: { barcode: string; }) => code.barcode), 'DeleteNotifSent');
+      await setLocationsRMMCode(tx, 'storage', storages.map((code: { barcode: string; }) => code.barcode), 'DeleteNotifSent');
+      await setLocationsRMMCode(tx, 'shelf', shelves.map((code: { barcode: string; }) => code.barcode), 'DeleteNotifSent');
+      await setLocationsRMMCode(tx, 'box', boxes.map((code: { barcode: string; }) => code.barcode), 'DeleteNotifSent');
     },{
       maxWait: 10000, // Max time (ms) to wait for a transaction slot (default: 2000)
       timeout: 30000, // Max time (ms) the transaction can run (default: 5000)
