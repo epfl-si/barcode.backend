@@ -66,7 +66,7 @@ builder.mutationType({
         const box = await ctx.prisma.box.findUnique({where: {barcode: args.barcode}});
 
         const codes = [{barcode: box.barcode}];
-        const status = await callRmmAndGetStatusForDeletion(ctx, codes);
+        const status = await callRmmAndGetStatusForDeletion(codes);
         return await ctx.prisma.$transaction(async (tx: any) => {
           await deleteBox(tx, args.barcode!, ctx.user, status);
           return true;

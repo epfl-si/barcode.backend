@@ -1,6 +1,6 @@
 import {getContainerFromRMM} from "./api";
 
-export async function callRmmAndGetStatusForDeletion (ctx: any, codes: {barcode: string}[]) {
+export async function callRmmAndGetStatusForDeletion (codes: {barcode: string}[]) {
   // Check RMM if barcode is empty and its children too, make transaction, otherwise throw error
   const rmmResult = await getContainerFromRMM({barcodes: codes.map(c => c.barcode).join(',')});
   const codeResult = codes.map(c => {
