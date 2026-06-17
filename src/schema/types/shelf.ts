@@ -1,8 +1,8 @@
 import {builder} from "../builder";
 import {z} from 'zod';
-import { RMMCodeStatus } from '../../../generated/prisma';
 import {callRmmAndGetStatusForDeletion} from "../../lib/rmmStatusAnalyser";
 import {getUserString} from "../../lib/user";
+import {restoreLocation} from "./location";
 
 builder.prismaObject('Shelf', {
   name: 'Shelf',
@@ -106,7 +106,7 @@ builder.mutationType({
           throw new Error("You cannot add a shelf on a deleted storage")
         }
         return await ctx.prisma.$transaction(async (tx: any) => {
-          await restoreShelf(tx, args.barcode!);
+          await restoreLocation(tx, 'shelf', args.barcode!);
           return true;
         });
       },
@@ -146,33 +146,5 @@ async function deleteShelf (transaction: any, barcode: string, user: UserInfo, s
       idShelf: shelf.id
     },
     data: data
-  });
-}
-
-async function restoreShelf (transaction: any, barcode: string) {
-  await transaction.shelf.update({
-    where: {
-      barcode: barcode
-    },
-    data: {
-      deletedBy: null,
-      deletedOn: null,
-      rmmStatus: 'ToBeCreated'
-    }
-  });
-}
-
-export async function getShelvesByRMMStatus (prisma: any, status: RMMCodeStatus) {
-  return await prisma.shelf.findMany({where: {rmmStatus: status}});
-}
-
-export async function setShelfRMMCode (transaction: any, barcode: string[], status: RMMCodeStatus) {
-  await transaction.shelf.updateMany({
-    where: {
-      barcode: {in: barcode}
-    },
-    data: {
-      rmmStatus: status
-    }
   });
 }

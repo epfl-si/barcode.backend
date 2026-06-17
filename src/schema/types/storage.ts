@@ -2,9 +2,9 @@ import {builder} from "../builder";
 import {z} from 'zod';
 import {getTypesEnum} from "../../lib/enum";
 import {getRoomFromApiById} from "../../lib/api";
-import {RMMCodeStatus} from '../../../generated/prisma';
 import {callRmmAndGetStatusForDeletion} from "../../lib/rmmStatusAnalyser";
 import {getUserString} from "../../lib/user";
+import {restoreLocation} from "./location";
 
 const StorageRef = builder.prismaObject('Storage', {
   name: 'Storage',
@@ -257,7 +257,7 @@ builder.mutationType({
       }),
       resolve: async (root, args, ctx: any) => {
         return await ctx.prisma.$transaction(async (tx: any) => {
-          await restoreStorage(tx, args.barcode!);
+          await restoreLocation(tx, 'storage', args.barcode!);
           return true;
         });
       },
@@ -330,34 +330,6 @@ async function deleteStorage (transaction: any, barcode: string, shelvesId: numb
       }
     },
     data: data
-  });
-}
-
-async function restoreStorage (transaction: any, barcode: string) {
-  await transaction.storage.update({
-    where: {
-      barcode: barcode
-    },
-    data: {
-      deletedBy: null,
-      deletedOn: null,
-      rmmStatus: 'ToBeCreated'
-    }
-  });
-}
-
-export async function getStoragesByRMMStatus (prisma: any, status: RMMCodeStatus) {
-  return await prisma.storage.findMany({where: {rmmStatus: status}});
-}
-
-export async function setStorageRMMCode (transaction: any, barcode: string[], status: RMMCodeStatus) {
-  await transaction.storage.updateMany({
-    where: {
-      barcode: {in: barcode}
-    },
-    data: {
-      rmmStatus: status
-    }
   });
 }
 
