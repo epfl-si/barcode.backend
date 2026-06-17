@@ -17,3 +17,16 @@ export async function callRmmAndGetStatusForDeletion (codes: {barcode: string}[]
   });
   return codeResult.filter(cr => cr.rmmStatus === 'ToBeDeleted').length > 0 ? 'ToBeDeleted' : 'Deleted';
 }
+
+export async function callRmmAndGetAllDeleted (codes: {barcode: string, locationName: 'storage' | 'shelf' | 'box'}[]) {
+  const rmmResult = await getContainerFromRMM({barcodes: codes.map(c => c.barcode).join(',')});
+  const codeResult = codes.map(c => {
+    const rmmCode = rmmResult.rows.find((r: { barcode: string; }) => r.barcode === c.barcode);
+    let status = '';
+    if (!rmmCode || rmmCode.status === 'INACTIF') {
+      status = "Deleted"; // barcodes are not presents on RMM or it's inactive
+    }
+    return {...c, rmmStatus: status};
+  });
+  return codeResult.filter(cr => cr.rmmStatus === 'Deleted');
+}
