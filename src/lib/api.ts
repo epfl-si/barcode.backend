@@ -56,8 +56,8 @@ export async function getRoomsFromApi(search: string): Promise<any> {
 
   return await callExternalApi(url, {
     basicAuth: {
-      username: process.env.API_USER || '',
-      password: process.env.API_PASSWORD || ''
+      username: process.env.SERVICE_ACCOUNT_NAME || '',
+      password: process.env.SERVICE_ACCOUNT_PASSWORD || ''
     }
   });
 }
@@ -67,8 +67,8 @@ export async function getRoomFromApiById(id: number): Promise<any> {
 
   return await callExternalApi(url, {
     basicAuth: {
-      username: process.env.API_USER || '',
-      password: process.env.API_PASSWORD || ''
+      username: process.env.SERVICE_ACCOUNT_NAME || '',
+      password: process.env.SERVICE_ACCOUNT_PASSWORD || ''
     }
   });
 }
