@@ -6,8 +6,8 @@ export const mailer = nodemailer.createTransport({
 	port: Number(process.env.SMTP_PORT) || 587,
 	secure: false,
 	auth: {
-		user: process.env.SMTP_USER,
-		pass: process.env.LHD_API_PASSWORD
+		user: process.env.SERVICE_ACCOUNT_EMAIL,
+		pass: process.env.SERVICE_ACCOUNT_PASSWORD
 	},
 });
 
@@ -17,7 +17,7 @@ export async function sendEmailForToBeDeletedCodes(message: string) {
 
   const to = [process.env.CATALYSE_EMAIL!];
 	await mailer.sendMail({
-		from: `"LIL" <${process.env.SMTP_USER}>`,
+		from: `"LIL" <${process.env.SERVICE_ACCOUNT_EMAIL}>`,
 		to: to,
 		subject: template.subject,
 		html: process.env.ENVIRONMENT === 'prod' ? body : `${logRecipients(to, [], [])}\n${body}`
