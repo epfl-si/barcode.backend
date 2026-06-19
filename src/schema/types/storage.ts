@@ -337,11 +337,3 @@ async function deleteStorage (transaction: any, barcode: string, shelvesId: numb
 //  - OK : barcode doesn't exists --> CREATED
 //  - KO : error barcode already exists and its status is active --> status CREATED
 //  - KO : error barcode already exists and its status is inactive --> status RestoreNotifSent --> send email
-
-// ---- TODO CRONJOB delete : all ToBeDeleted --> email --> DeleteNotifSent
-
-// TODO CRONJOB Check delete --> for all DeleteNotifSent if :
-//  - barcode doesn't exists or barcode exists and status inactive --> status DELETED
-
-// TODO CRONJOB Check creation --> for all RestoreNotifSent if :
-//  - barcode exists and status active --> status CREATED
