@@ -73,13 +73,33 @@ export async function getRoomFromApiById(id: number): Promise<any> {
   });
 }
 
-function getAccessSignature(date: string, uri: string, body: Record<string, string>): string {
+export async function getRoomFromApiByName(name: string): Promise<any> {
+  const url = `https://api.epfl.ch/v1/rooms?query=${encodeURIComponent(name)}`;
+
+  const rooms = await callExternalApi(url, {
+    basicAuth: {
+      username: process.env.SERVICE_ACCOUNT_NAME || '',
+      password: process.env.SERVICE_ACCOUNT_PASSWORD || ''
+    }
+  });
+  if (!rooms || !rooms.rooms || rooms.rooms.length === 0) {
+    return [];
+  }
+  return rooms.rooms.map((u: { name: string; building: { name: string; site: { label: string; }; }; floor: string; }) => ({
+    name: u.name,
+    building: u.building.name,
+    site: u.building.site.label === 'ECUBLENS' ? 'Lausanne' : u.building.site.label,
+    floor: u.floor
+  }))[0];
+}
+
+function getAccessSignature(date: string, uri: string, body: Record<string, string | number>): string {
   let signature = `${date}:${uri}:${getQueryString(body, ':')}:timezoneoffset:0:`;
   const binary = CryptoJS.HmacSHA256(signature, process.env.RMM_ENCRYPTED_KEY!);
   return CryptoJS.enc.Base64.stringify(binary);
 }
 
-function getQueryString (body: Record<string, string>, separator: string) {
+function getQueryString (body: Record<string, string | number>, separator: string) {
   const queryString: string[] = [];
   const sortedKeys = Object.keys(body).sort();
   for (const key of sortedKeys) {
@@ -88,7 +108,7 @@ function getQueryString (body: Record<string, string>, separator: string) {
   return queryString.join(separator);
 }
 
-export async function getContainerFromRMM(body: Record<string, string>) {
+export async function getContainerFromRMM(body: Record<string, string | number>) {
   const uri = '/epfl/erd-services/json/containersearch/search';
   const url = `${process.env.RMM_URL}${uri}?${getQueryString(body, '&')}&timezoneoffset=0`;
   const date = String(Date.now());
