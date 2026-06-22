@@ -1,8 +1,8 @@
 import {builder} from "../builder";
 import {z} from 'zod';
-import {callRmmAndGetStatusForDeletion} from "../../lib/rmmStatusAnalyser";
 import {getUserString} from "../../lib/user";
 import {restoreLocation} from "./location";
+import {RMMCodeStatus} from '../../../generated/prisma';
 
 builder.prismaObject('Box', {
   name: 'Box',
@@ -63,12 +63,8 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        const box = await ctx.prisma.box.findUnique({where: {barcode: args.barcode}});
-
-        const codes = [{barcode: box.barcode}];
-        const status = await callRmmAndGetStatusForDeletion(codes);
         return await ctx.prisma.$transaction(async (tx: any) => {
-          await deleteBox(tx, args.barcode!, ctx.user, status);
+          await deleteBox(tx, args.barcode!, ctx.user);
           return true;
         });
       },
@@ -116,7 +112,7 @@ export async function createBox (transaction: any, barcode: string, parent: {id:
   });
 }
 
-export async function deleteBox (transaction: any, barcode: string, user: UserInfo, status: 'ToBeDeleted' | 'Deleted') {
+export async function deleteBox (transaction: any, barcode: string, user: UserInfo) {
   await transaction.box.update({
     where: {
       barcode: barcode
@@ -124,7 +120,14 @@ export async function deleteBox (transaction: any, barcode: string, user: UserIn
     data: {
       deletedBy: getUserString(user),
       deletedOn: new Date(),
-      rmmStatus: status
+      rmmStatus: 'ToBeDeleted'
     }
+  });
+}
+
+export async function getBoxesByRMMStatus (prisma: any, status: RMMCodeStatus) {
+  return await prisma.box.findMany({
+    where: {rmmStatus: status},
+    include: {shelf: {include: {storage: true}}}
   });
 }

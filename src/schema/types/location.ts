@@ -13,10 +13,6 @@ export async function restoreLocation (transaction: any, locationName: 'storage'
   });
 }
 
-export async function getLocationsByRMMStatus (prisma: any, locationName: 'storage' | 'shelf' | 'box', status: RMMCodeStatus) {
-  return await prisma[locationName].findMany({where: {rmmStatus: status}});
-}
-
 export async function setLocationsRMMCode (transaction: any, locationName: 'storage' | 'shelf' | 'box', barcode: string[], status: RMMCodeStatus) {
   await transaction[locationName].updateMany({
     where: {
