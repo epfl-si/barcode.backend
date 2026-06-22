@@ -1,8 +1,8 @@
 import {builder} from "../builder";
 import {z} from 'zod';
-import {callRmmAndGetStatusForDeletion} from "../../lib/rmmStatusAnalyser";
 import {getUserString} from "../../lib/user";
 import {restoreLocation} from "./location";
+import {RMMCodeStatus} from '../../../generated/prisma';
 
 builder.prismaObject('Shelf', {
   name: 'Shelf',
@@ -73,16 +73,8 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        const shelf = await ctx.prisma.shelf.findUnique({where: {barcode: args.barcode}});
-        const boxes = await ctx.prisma.box.findMany({ where: { idShelf: shelf.id } });
-
-        const codes = [
-          {barcode: shelf.barcode},
-          ...boxes.map((code: { barcode: string; }) => {return {barcode: code.barcode}})
-        ];
-        const status = await callRmmAndGetStatusForDeletion(codes);
         return await ctx.prisma.$transaction(async (tx: any) => {
-          await deleteShelf(tx, args.barcode!, ctx.user, status);
+          await deleteShelf(tx, args.barcode!, ctx.user);
           return true;
         });
       },
@@ -129,11 +121,11 @@ async function createShelf (transaction: any, barcode: string, parent: {id: numb
   });
 }
 
-async function deleteShelf (transaction: any, barcode: string, user: UserInfo, status: 'ToBeDeleted' | 'Deleted') {
+async function deleteShelf (transaction: any, barcode: string, user: UserInfo) {
   const data = {
     deletedBy: getUserString(user),
     deletedOn: new Date(),
-    rmmStatus: status
+    rmmStatus: 'ToBeDeleted'
   };
   const shelf = await transaction.shelf.update({
     where: {
@@ -146,5 +138,12 @@ async function deleteShelf (transaction: any, barcode: string, user: UserInfo, s
       idShelf: shelf.id
     },
     data: data
+  });
+}
+
+export async function getShelvesByRMMStatus (prisma: any, status: RMMCodeStatus) {
+  return await prisma.shelf.findMany({
+    where: {rmmStatus: status},
+    include: {storage: true}
   });
 }

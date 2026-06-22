@@ -2,9 +2,9 @@ import {builder} from "../builder";
 import {z} from 'zod';
 import {getTypesEnum} from "../../lib/enum";
 import {getRoomFromApiById} from "../../lib/api";
-import {callRmmAndGetStatusForDeletion} from "../../lib/rmmStatusAnalyser";
 import {getUserString} from "../../lib/user";
 import {restoreLocation} from "./location";
+import {RMMCodeStatus} from '../../../generated/prisma';
 
 const StorageRef = builder.prismaObject('Storage', {
   name: 'Storage',
@@ -228,19 +228,8 @@ builder.mutationType({
         barcode: z.string().nonempty(),
       }),
       resolve: async (root, args, ctx: any) => {
-        const storage = await ctx.prisma.storage.findUnique({ where: { barcode: args.barcode } });
-        const shelves = await ctx.prisma.shelf.findMany({where: {idStorage: storage.id}});
-        const shelvesId = shelves.map((shelf: { id: number; }) => shelf.id);
-        const boxes = await ctx.prisma.box.findMany({ where: { idShelf: { in: shelvesId } } });
-
-        const codes = [
-          {barcode: storage.barcode},
-          ...shelves.map((code: { barcode: string; }) => {return {barcode: code.barcode}}),
-          ...boxes.map((code: { barcode: string; }) => {return {barcode: code.barcode}})
-        ];
-        const status = await callRmmAndGetStatusForDeletion(codes);
         return await ctx.prisma.$transaction(async (tx: any) => {
-          await deleteStorage(tx, args.barcode!, shelvesId, ctx.user, status);
+          await deleteStorage(tx, args.barcode!, ctx.user);
           return true;
         });
       },
@@ -305,11 +294,11 @@ async function createStorage (transaction: any,
   });
 }
 
-async function deleteStorage (transaction: any, barcode: string, shelvesId: number[], user: UserInfo, status: 'ToBeDeleted' | 'Deleted') {
+async function deleteStorage (transaction: any, barcode: string, user: UserInfo) {
   const data = {
     deletedBy: getUserString(user),
     deletedOn: new Date(),
-    rmmStatus: status
+    rmmStatus: 'ToBeDeleted'
   };
   const storage = await transaction.storage.update({
     where: {
@@ -317,6 +306,8 @@ async function deleteStorage (transaction: any, barcode: string, shelvesId: numb
     },
     data: data
   });
+  const shelves = (await transaction.shelf.findMany({where: {idStorage: storage.id}}))
+    .map((shelf: { id: number; }) => shelf.id);
   await transaction.shelf.updateMany({
     where: {
       idStorage: storage.id
@@ -326,14 +317,13 @@ async function deleteStorage (transaction: any, barcode: string, shelvesId: numb
   await transaction.box.updateMany({
     where: {
       idShelf: {
-        in: shelvesId
+        in: shelves
       }
     },
     data: data
   });
 }
 
-// TODO CRONJOB create --> for all ToBeCreated if :
-//  - OK : barcode doesn't exists --> CREATED
-//  - KO : error barcode already exists and its status is active --> status CREATED
-//  - KO : error barcode already exists and its status is inactive --> status RestoreNotifSent --> send email
+export async function getStoragesByRMMStatus (prisma: any, status: RMMCodeStatus) {
+  return await prisma.storage.findMany({where: {rmmStatus: status}});
+}
