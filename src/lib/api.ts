@@ -51,37 +51,31 @@ async function callExternalApi(
   }
 }
 
-export async function getRoomsFromApi(search: string): Promise<any> {
-  const url = `https://api.epfl.ch/v1/rooms?query=${encodeURIComponent(search)}`;
-
-  return await callExternalApi(url, {
+function getApiBasicAuth () {
+  return {
     basicAuth: {
       username: process.env.SERVICE_ACCOUNT_NAME || '',
       password: process.env.SERVICE_ACCOUNT_PASSWORD || ''
     }
-  });
+  };
+}
+
+export async function getRoomsFromApi(search: string): Promise<any> {
+  const url = `https://api.epfl.ch/v1/rooms?query=${encodeURIComponent(search)}`;
+
+  return await callExternalApi(url, getApiBasicAuth());
 }
 
 export async function getRoomFromApiById(id: number): Promise<any> {
   const url = `https://api.epfl.ch/v1/rooms/${id}`;
 
-  return await callExternalApi(url, {
-    basicAuth: {
-      username: process.env.SERVICE_ACCOUNT_NAME || '',
-      password: process.env.SERVICE_ACCOUNT_PASSWORD || ''
-    }
-  });
+  return await callExternalApi(url, getApiBasicAuth());
 }
 
 export async function getRoomFromApiByName(name: string): Promise<any> {
   const url = `https://api.epfl.ch/v1/rooms?query=${encodeURIComponent(name)}`;
 
-  const rooms = await callExternalApi(url, {
-    basicAuth: {
-      username: process.env.SERVICE_ACCOUNT_NAME || '',
-      password: process.env.SERVICE_ACCOUNT_PASSWORD || ''
-    }
-  });
+  const rooms = await callExternalApi(url, getApiBasicAuth());
   if (!rooms || !rooms.rooms || rooms.rooms.length === 0) {
     return [];
   }
