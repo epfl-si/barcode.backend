@@ -3,6 +3,15 @@ import {getBoxesByRMMStatus} from "./box";
 import {getShelvesByRMMStatus} from "./shelf";
 import {getStoragesByRMMStatus} from "./storage";
 
+export interface Code {
+  barcode: string,
+  locationName: "storage" | "shelf" | "box",
+  deletedOn: Date,
+  deletedBy: string,
+  parentNiv1: string,
+  parentNiv2: string,
+  parentNiv3: string
+}
 
 export async function restoreLocation (transaction: any, locationName: 'storage' | 'shelf' | 'box', barcode: string) {
   await transaction[locationName].update({
