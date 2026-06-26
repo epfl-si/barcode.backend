@@ -102,9 +102,8 @@ function getQueryString (body: Record<string, string | number>, separator: strin
   return queryString.join(separator);
 }
 
-export async function getContainerFromRMM(body: Record<string, string | number>) {
-  const uri = '/epfl/erd-services/json/containersearch/search';
-  const url = `${process.env.RMM_URL}${uri}?${getQueryString(body, '&')}&timezoneoffset=0`;
+export async function callRMM(uri: string, body: Record<string, string | number>) {
+  const url = `${process.env.RMM_URL}${uri}?${getQueryString(body, '&')}`;
   const date = String(Date.now());
 
   const authorization = process.env.RMM_ACCESS_KEY + ":" + getAccessSignature(date, uri, body);
