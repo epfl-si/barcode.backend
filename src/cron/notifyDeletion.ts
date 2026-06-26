@@ -1,8 +1,8 @@
 import {getPrismaForUser} from "../lib/auditablePrisma";
 import {sendEmailForToBeDeletedCodes} from "../lib/email/mailer";
 import {getFormattedDate} from "../lib/date";
-import {getCodesByStatus, setLocationsRMMCode} from "../schema/types/location";
-import {getContainerFromRMM, getRoomFromApiByName} from "../lib/api";
+import {Code, getCodesByStatus, setLocationsRMMCode} from "../schema/types/location";
+import {callRMM, getRoomFromApiByName} from "../lib/api";
 
 const cronUser: UserInfo = {
   username: 'LHD-cron'
@@ -17,7 +17,7 @@ const prisma = getPrismaForUser(cronUser);
 async function notifyForToBeDeletedCodes () {
   // Get details for each code from DB given its RMM status
   const codes: Code[] = await getCodesByStatus(prisma, 'ToBeDeleted');
-  const containers = [];
+  const containers: Code[] = [];
   for ( const code of codes) {
     // Get roomName by location type
     let roomName = '';
@@ -40,21 +40,34 @@ async function notifyForToBeDeletedCodes () {
       location = `${room.site}>${room.building}>${room.floor}>${roomName}>${code.parentNiv2}>${code.parentNiv1}>${code.barcode}`;
     }
     // Check RMM if barcode sublocation contains something
-    const availableRMMContainers = await getContainerFromRMM({locations: location, status: 5});
-    // SubLocation could be deleted only if totalcount === 0
-    containers.push({...code, totalCount: availableRMMContainers.totalCount});
+    try {
+      const availableRMMContainers = await callRMM('/epfl/erd-services/json/containersearch/search', {locations: location, status: 5, timezoneoffset: 0});
+      // SubLocation could be deleted only if totalcount === 0
+      containers.push({...code, totalCount: availableRMMContainers.totalCount});
+    } catch ( e ) {
+      await prisma.$transaction(async (tx) => {
+        await setLocationsRMMCode(tx, code.locationName, [code].map(c => c.barcode), 'Deleted');
+      },{
+        maxWait: 10000, // Max time (ms) to wait for a transaction slot (default: 2000)
+        timeout: 30000, // Max time (ms) the transaction can run (default: 5000)
+      });
+    }
   }
-  const message: string[] = containers.map((code: {barcode: string, locationName: "storage" | "shelf" | "box", deletedOn: Date, deletedBy: string, totalCount: number}) =>
+  const message: string[] = containers.map(code =>
     `${code.barcode} - Supprimé le ${getFormattedDate(code.deletedOn)} par ${code.deletedBy}. Il contient ${code.totalCount} items.`);
+
+  if (message.length === 0) {
+    return;
+  }
 
   console.log(`Sending notification for ToBeDeleted codes: ${message.join('\n')}`);
   await sendEmailForToBeDeletedCodes(message.join('<br/>'));
   await prisma.$transaction(async (tx) => {
-    await setLocationsRMMCode(tx, 'storage', codes.filter(c => c.locationName === 'storage')
+    await setLocationsRMMCode(tx, 'storage', containers.filter(c => c.locationName === 'storage')
       .map(c => c.barcode), 'DeleteNotifSent');
-    await setLocationsRMMCode(tx, 'shelf', codes.filter(c => c.locationName === 'shelf')
+    await setLocationsRMMCode(tx, 'shelf', containers.filter(c => c.locationName === 'shelf')
       .map(c => c.barcode), 'DeleteNotifSent');
-    await setLocationsRMMCode(tx, 'box', codes.filter(c => c.locationName === 'box')
+    await setLocationsRMMCode(tx, 'box', containers.filter(c => c.locationName === 'box')
       .map(c => c.barcode), 'DeleteNotifSent');
   },{
     maxWait: 10000, // Max time (ms) to wait for a transaction slot (default: 2000)
