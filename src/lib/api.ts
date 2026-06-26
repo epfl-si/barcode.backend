@@ -44,9 +44,9 @@ async function callExternalApi(
   }
 
   const response = await fetch(url, fetchOptions);
-  if (response.ok) {
+  try {
     return await response.json();
-  } else {
+  } catch ( e ) {
     throw new Error(`Failed to fetch external API: ${url} (${response.status})`);
   }
 }
@@ -93,7 +93,7 @@ function getAccessSignature(date: string, uri: string, body: Record<string, stri
   return CryptoJS.enc.Base64.stringify(binary);
 }
 
-function getQueryString (body: Record<string, string | number>, separator: string) {
+export function getQueryString (body: Record<string, string | number>, separator: string) {
   const queryString: string[] = [];
   const sortedKeys = Object.keys(body).sort();
   for (const key of sortedKeys) {
