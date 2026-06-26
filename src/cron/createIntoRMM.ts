@@ -12,8 +12,9 @@ const prisma = getPrismaForUser(cronUser);
  *
  * For each code, notify Catalyse
  */
-async function createIntoRMM () {
-  const codes: {barcode: string, locationName: "storage" | "shelf" | "box", deletedOn: Date, deletedBy: string, parentNiv1: string, parentNiv2: string, parentNiv3: string}[] = await getCodesByStatus(prisma, 'ToBeCreated');
+export async function createIntoRMM () {
+  // Get details for each code from DB given its RMM status
+  const codes: Code[] = await getCodesByStatus(prisma, 'ToBeCreated');
   for ( const code of codes) {
     for ( const code of codes) {
       // Get roomName by location type
