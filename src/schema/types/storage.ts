@@ -325,5 +325,8 @@ async function deleteStorage (transaction: any, barcode: string, user: UserInfo)
 }
 
 export async function getStoragesByRMMStatus (prisma: any, status: RMMCodeStatus) {
-  return await prisma.storage.findMany({where: {rmmStatus: status}});
+  return await prisma.storage.findMany({
+    where: {rmmStatus: status},
+    include: {roomType: true}
+  });
 }

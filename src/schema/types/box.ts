@@ -128,6 +128,6 @@ export async function deleteBox (transaction: any, barcode: string, user: UserIn
 export async function getBoxesByRMMStatus (prisma: any, status: RMMCodeStatus) {
   return await prisma.box.findMany({
     where: {rmmStatus: status},
-    include: {shelf: {include: {storage: true}}}
+    include: {shelf: {include: {storage: {include: {roomType: true}}}}}
   });
 }
