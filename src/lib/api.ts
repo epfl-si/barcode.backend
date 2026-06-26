@@ -88,7 +88,7 @@ export async function getRoomFromApiByName(name: string): Promise<any> {
 }
 
 function getAccessSignature(date: string, uri: string, body: Record<string, string | number>): string {
-  let signature = `${date}:${uri}:${getQueryString(body, ':')}:timezoneoffset:0:`;
+  let signature = `${date}:${uri}:${getQueryString(body, ':')}:`;
   const binary = CryptoJS.HmacSHA256(signature, process.env.RMM_ENCRYPTED_KEY!);
   return CryptoJS.enc.Base64.stringify(binary);
 }
