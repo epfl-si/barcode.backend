@@ -43,13 +43,10 @@ async function notifyForToBeDeletedCodes () {
     try {
       const availableRMMContainers = await callRMM('/epfl/erd-services/json/containersearch/search', {locations: location, status: 5, timezoneoffset: 0});
       // SubLocation could be deleted only if totalcount === 0
-      containers.push({...code, totalCount: availableRMMContainers.totalResults});
+      containers.push({...code, totalCount: availableRMMContainers.totalResults ?? 0});
     } catch ( e ) {
       await prisma.$transaction(async (tx) => {
         await setLocationsRMMCode(tx, code.locationName, [code].map(c => c.barcode), 'Deleted');
-      },{
-        maxWait: 10000, // Max time (ms) to wait for a transaction slot (default: 2000)
-        timeout: 30000, // Max time (ms) the transaction can run (default: 5000)
       });
     }
   }
