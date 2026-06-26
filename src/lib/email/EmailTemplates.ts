@@ -4,7 +4,7 @@ export type EmailTemplate = {
 };
 
 export const toBeDeletedCodes: EmailTemplate = {
-	subject: `Liste des codes supprimés par LIL`,
+	subject: `LIL - Liste des codes supprimés`,
 	body: `Bonjour,<br/>
 Voici la liste des codes qui ont été supprimés dans LIL : <br/><br/>
 {{message}}`,
