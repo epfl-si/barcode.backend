@@ -10,7 +10,8 @@ export interface Code {
   deletedBy: string,
   parentNiv1: string,
   parentNiv2: string,
-  parentNiv3: string
+  parentNiv3: string,
+  totalCount?: number
 }
 
 export async function restoreLocation (transaction: any, locationName: 'storage' | 'shelf' | 'box', barcode: string) {
