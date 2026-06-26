@@ -144,6 +144,6 @@ async function deleteShelf (transaction: any, barcode: string, user: UserInfo) {
 export async function getShelvesByRMMStatus (prisma: any, status: RMMCodeStatus) {
   return await prisma.shelf.findMany({
     where: {rmmStatus: status},
-    include: {storage: true}
+    include: {storage: {include: {roomType: true}}}
   });
 }
