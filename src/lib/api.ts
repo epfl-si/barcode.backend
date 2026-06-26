@@ -82,7 +82,7 @@ export async function getRoomFromApiByName(name: string): Promise<any> {
   return rooms.rooms.map((u: { name: string; building: { name: string; site: { label: string; }; }; floor: string; }) => ({
     name: u.name,
     building: u.building.name,
-    site: u.building.site.label === 'ECUBLENS' ? 'Lausanne' : u.building.site.label,
+    site: u.building.site.label === 'ECUBLENS' ? 'LAUSANNE' : u.building.site.label,
     floor: u.floor
   }))[0];
 }
