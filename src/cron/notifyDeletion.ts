@@ -55,7 +55,7 @@ async function notifyForToBeDeletedCodes () {
     }
   }
   const message: string[] = containers.map(code =>
-    `${code.barcode} - Supprimé le ${getFormattedDate(code.deletedOn)} par ${code.deletedBy}. Il contient ${code.totalCount} items.`);
+    `<b>${code.barcode}</b> · Supprimé dans LIL le ${getFormattedDate(code.deletedOn)} par ${code.deletedBy}. Il contient ${code.totalCount} container${code.totalCount && code.totalCount > 1 ? 's' : ''}.`);
 
   if (message.length === 0) {
     return;
