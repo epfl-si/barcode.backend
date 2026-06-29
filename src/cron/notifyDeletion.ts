@@ -45,6 +45,7 @@ async function notifyForToBeDeletedCodes () {
       // SubLocation could be deleted only if totalcount === 0
       containers.push({...code, totalCount: availableRMMContainers.totalResults ?? 0});
     } catch ( e ) {
+      console.log(`${code.barcode} DELETED`);
       await prisma.$transaction(async (tx) => {
         await setLocationsRMMCode(tx, code.locationName, [code].map(c => c.barcode), 'Deleted');
       });
