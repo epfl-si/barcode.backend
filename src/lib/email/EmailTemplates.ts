@@ -5,9 +5,12 @@ export type EmailTemplate = {
 
 export const toBeDeletedCodes: EmailTemplate = {
 	subject: `LIL - Liste des codes supprimés`,
-	body: `Bonjour,<br/>
-Voici la liste des codes qui ont été supprimés dans LIL : <br/><br/>
-{{message}}`,
+	body: `Bonjour,<br/><br/>
+Voici la liste des codes qui ont été supprimés dans LIL et <b>qui doivent être supprimés dans RMM</b>: <br/><br/>
+{{message}}<br/><br/>
+Pour toutes questions, merci de contacter le support Catalyse.<br/><br/>
+Merci,<br/><br/>
+Le service LIL`,
 }
 
 export function logRecipients (to: string[], cc: string[], bcc: string[]) {
