@@ -104,6 +104,7 @@ export function getQueryString (body: Record<string, string | number>, separator
 
 export async function callRMM(uri: string, body: Record<string, string | number>) {
   const url = `${process.env.RMM_URL}${uri}?${getQueryString(body, '&')}`;
+  console.log(url);
   const date = String(Date.now());
 
   const authorization = process.env.RMM_ACCESS_KEY + ":" + getAccessSignature(date, uri, body);
