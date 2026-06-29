@@ -41,8 +41,8 @@ export async function createIntoRMM () {
       location.sublocationName1 = code.parentNiv1;
       location.sublocationName2 = code.barcode;
     } else if (code.locationName === 'box') {
-      location.sublocationName1 = code.parentNiv1;
-      location.sublocationName2 = code.parentNiv2;
+      location.sublocationName1 = code.parentNiv2;
+      location.sublocationName2 = code.parentNiv1;
       location.sublocationName3 = code.barcode;
     }
     const createdLocation = await callRMM('/epfl/erd-services/json/import/createLocation', location);
