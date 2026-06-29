@@ -43,7 +43,10 @@ async function notifyForToBeDeletedCodes () {
     try {
       const availableRMMContainers = await callRMM('/epfl/erd-services/json/containersearch/search', {locations: location, status: 5, timezoneoffset: 0});
       // SubLocation could be deleted only if totalcount === 0
-      containers.push({...code, totalCount: availableRMMContainers.totalResults ?? 0});
+      if (!availableRMMContainers.totalResults) {
+        throw new Error("Container doesn't exist.")
+      }
+      containers.push({...code, totalCount: availableRMMContainers.totalResults});
     } catch ( e ) {
       console.log(`${code.barcode} DELETED`);
       await prisma.$transaction(async (tx) => {
