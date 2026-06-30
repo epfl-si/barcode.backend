@@ -86,6 +86,7 @@ enum RMMCodeStatus {
   RestoreNotifSent
   ToBeCreated
   ToBeDeleted
+  ErrorCreating
 
   @@map("rmm_code_status")
 }
