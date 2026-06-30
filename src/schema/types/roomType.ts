@@ -4,7 +4,8 @@ builder.prismaObject('RoomType', {
   name: 'RoomType',
   fields: (t: any) => ({
     symbol: t.exposeString('symbol'),
-    shortName: t.exposeString('shortName')
+    shortName: t.exposeString('shortName'),
+    rmmName: t.exposeString('rmmName')
   }),
 });
 
