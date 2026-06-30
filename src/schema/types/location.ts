@@ -13,6 +13,7 @@ export interface Code {
   parentNiv3: string,
   totalCount?: number,
   roomType: string;
+  roomName: string;
 }
 
 export async function restoreLocation (transaction: any, locationName: 'storage' | 'shelf' | 'box', barcode: string) {
@@ -45,7 +46,7 @@ export async function getCodesByStatus (prisma: any, status: RMMCodeStatus) {
   const boxes =  await getBoxesByRMMStatus(prisma, status);
 
   return [
-    ...storages.map((code: { barcode: any; deletedBy: any; deletedOn: any; roomDisplay: any; roomType: { symbol: string; } }) => {
+    ...storages.map((code: { barcode: any; deletedBy: any; deletedOn: any; roomDisplay: any; roomType: { rmmName: string; } }) => {
       return {
         barcode: code.barcode,
         locationName: 'storage',
@@ -54,10 +55,11 @@ export async function getCodesByStatus (prisma: any, status: RMMCodeStatus) {
         parentNiv1: code.roomDisplay,
         parentNiv2: null,
         parentNiv3: null,
-        roomType: code.roomType.symbol
+        roomType: code.roomType.rmmName,
+        roomName: code.roomDisplay
       }
     }),
-    ...shelves.map((code: { barcode: any; deletedBy: any; deletedOn: any; storage: { barcode: any; roomDisplay: any; roomType: { symbol: string; } }; }) => {
+    ...shelves.map((code: { barcode: any; deletedBy: any; deletedOn: any; storage: { barcode: any; roomDisplay: any; roomType: { rmmName: string; } }; }) => {
       return {
         barcode: code.barcode,
         locationName: 'shelf',
@@ -66,10 +68,11 @@ export async function getCodesByStatus (prisma: any, status: RMMCodeStatus) {
         parentNiv1: code.storage.barcode,
         parentNiv2: code.storage.roomDisplay,
         parentNiv3: null,
-        roomType: code.storage.roomType.symbol
+        roomType: code.storage.roomType.rmmName,
+        roomName: code.storage.roomDisplay
       }
     }),
-    ...boxes.map((code: { barcode: any; deletedBy: any; deletedOn: any; shelf: { barcode: any; storage: { barcode: any; roomDisplay: any; roomType: { symbol: string; } }; }; }) => {
+    ...boxes.map((code: { barcode: any; deletedBy: any; deletedOn: any; shelf: { barcode: any; storage: { barcode: any; roomDisplay: any; roomType: { rmmName: string; } }; }; }) => {
       return {
         barcode: code.barcode,
         locationName: 'box',
@@ -78,7 +81,8 @@ export async function getCodesByStatus (prisma: any, status: RMMCodeStatus) {
         parentNiv1: code.shelf.barcode,
         parentNiv2: code.shelf.storage.barcode,
         parentNiv3: code.shelf.storage.roomDisplay,
-        roomType: code.shelf.storage.roomType.symbol
+        roomType: code.shelf.storage.roomType.rmmName,
+        roomName: code.shelf.storage.roomDisplay
       }
     })
   ];
