@@ -1,5 +1,5 @@
 import * as nodemailer from "nodemailer";
-import {logRecipients, toBeDeletedCodes,} from "./EmailTemplates";
+import {logRecipients, notAllowedRooms, toBeDeletedCodes,} from "./EmailTemplates";
 
 export const mailer = nodemailer.createTransport({
 	host: process.env.SMTP_HOST,
@@ -22,4 +22,17 @@ export async function sendEmailForToBeDeletedCodes(message: string) {
 		subject: template.subject,
 		html: process.env.ENVIRONMENT === 'prod' ? body : `${logRecipients(to, [], [])}\n${body}`
 	});
+}
+
+export async function sendEmailForNotAllowedRooms(message: string) {
+  let template = notAllowedRooms;
+  const body = template.body.replaceAll("{{message}}", message);
+
+  const to = [process.env.CATALYSE_EMAIL!];
+  await mailer.sendMail({
+    from: `"LIL" <${process.env.SERVICE_ACCOUNT_EMAIL}>`,
+    to: to,
+    subject: template.subject,
+    html: process.env.ENVIRONMENT === 'prod' ? body : `${logRecipients(to, [], [])}\n${body}`
+  });
 }
