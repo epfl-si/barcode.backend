@@ -1,7 +1,7 @@
 import {getPrismaForUser} from "../lib/auditablePrisma";
 import {Code, getCodesByStatus, setLocationsRMMCode} from "../schema/types/location";
 import {callRMM, getQueryString, getRoomFromApiByName} from "../lib/api";
-import {sendEmailForToBeDeletedCodes} from "../lib/email/mailer";
+import {sendEmailForNotAllowedRooms} from "../lib/email/mailer";
 
 const cronUser: UserInfo = {
   username: 'LHD-cron'
@@ -16,7 +16,7 @@ const prisma = getPrismaForUser(cronUser);
 export async function createIntoRMM () {
   // Get details for each code from DB given its RMM status
   const codes: Code[] = await getCodesByStatus(prisma, 'ToBeCreated');
-  const containers: Code[] = [];
+  const notAllowedCodes: Code[] = [];
   for ( const code of codes) {
     // Call api to get Site>Building>Floor given the room
     const room: { name: string; building: string; site: string; floor: string; } = await getRoomFromApiByName(code.roomName);
@@ -45,24 +45,28 @@ export async function createIntoRMM () {
       // Check in RMM if room already exists
       const roomInRMM = await callRMM('/epfl/erd-services/json/containersearch/search',
         {locations: `${room.site}>${room.building}>${room.floor}>${code.roomName}`, status: 5, timezoneoffset: 0});
-      if (roomInRMM.totalResults >= 0) {
-        await createLocation(location, code);
-      } else {
-        containers.push(code);
+      if (roomInRMM.totalResults === null) {
+        const message = `Room ${code.roomName} - (${code.roomType}) ne peut pas être créée dans RMM.`;
+        notAllowedCodes.push({...code, rmmErrorMessage: message});
 
         await prisma.$transaction(async (tx) => {
-          await setLocationsRMMCode(tx, code.locationName, [code.barcode], 'ErrorCreating', 'ErrorCreatingRoom');
+          await setLocationsRMMCode(tx, code.locationName, [code.barcode], 'ErrorCreating', message);
         });
+      } else {
+        const errorCode = await createLocation(location, code);
+        if (errorCode) {
+          notAllowedCodes.push({...code, rmmErrorMessage: `<b>${code.barcode}</b>: ${errorCode}`});
+        }
       }
     }
   }
-  const message: string[] = containers.map(code => `Room ${code.roomName} - (${code.roomType}) can't be created in RMM.`);
-  if (message.length === 0) {
+  const body: string[] = notAllowedCodes.map(code => code.rmmErrorMessage!);
+  if (body.length === 0) {
     return;
   }
 
-  console.log(`Sending notification for ErrorCreating rooms: ${message.join('\n')}`);
-  await sendEmailForToBeDeletedCodes(message.join('<br/>'));
+  console.log(`Sending notification for NotAllowedRooms: ${body.join('\n')}`);
+  await sendEmailForNotAllowedRooms(body.join('<br/>'));
 }
 
 async function createLocation (location: Record<string, string | number>, code: Code) {
@@ -74,11 +78,12 @@ async function createLocation (location: Record<string, string | number>, code: 
       await setLocationsRMMCode(tx, code.locationName, [code.barcode], 'Created', '');
     });
   } else {
-    console.log(`Error while creating code: ${getQueryString(location, ' ')} - ${createdLocation.message}`);
+    const error = createdLocation.message.substring(0, createdLocation.message.indexOf(';'));
+    console.log(`Error while creating code: ${getQueryString(location, ' ')} - ${error}`);
     await prisma.$transaction(async (tx) => {
-      await setLocationsRMMCode(tx, code.locationName, [code.barcode], 'ErrorCreating', createdLocation.message);
+      await setLocationsRMMCode(tx, code.locationName, [code.barcode], 'ErrorCreating', error);
     });
-    //ticket SNOW
+    return error;
   }
 }
 
