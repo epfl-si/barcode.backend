@@ -19,25 +19,16 @@ async function notifyForToBeDeletedCodes () {
   const codes: Code[] = await getCodesByStatus(prisma, 'ToBeDeleted');
   const containers: Code[] = [];
   for ( const code of codes) {
-    // Get roomName by location type
-    let roomName = '';
-    if (code.locationName === 'storage') {
-      roomName = code.parentNiv1;
-    } else if (code.locationName === 'shelf') {
-      roomName = code.parentNiv2;
-    } else if (code.locationName === 'box') {
-      roomName = code.parentNiv3;
-    }
     // Call api to get Site>Building>Floor given the room
-    const room: { name: string; building: string; site: string; floor: string; } = await getRoomFromApiByName(roomName);
+    const room: { name: string; building: string; site: string; floor: string; } = await getRoomFromApiByName(code.roomName);
     // Build querystring
     let location = '';
     if (code.locationName === 'storage') {
-      location = `${room.site}>${room.building}>${room.floor}>${roomName}>${code.barcode}`;
+      location = `${room.site}>${room.building}>${room.floor}>${code.roomName}>${code.barcode}`;
     } else if (code.locationName === 'shelf') {
-      location = `${room.site}>${room.building}>${room.floor}>${roomName}>${code.parentNiv1}>${code.barcode}`;
+      location = `${room.site}>${room.building}>${room.floor}>${code.roomName}>${code.parentNiv1}>${code.barcode}`;
     } else if (code.locationName === 'box') {
-      location = `${room.site}>${room.building}>${room.floor}>${roomName}>${code.parentNiv2}>${code.parentNiv1}>${code.barcode}`;
+      location = `${room.site}>${room.building}>${room.floor}>${code.roomName}>${code.parentNiv2}>${code.parentNiv1}>${code.barcode}`;
     }
     // Check RMM if barcode sublocation contains something
     try {
@@ -50,7 +41,7 @@ async function notifyForToBeDeletedCodes () {
     } catch ( e ) {
       console.log(`${code.barcode} DELETED`);
       await prisma.$transaction(async (tx) => {
-        await setLocationsRMMCode(tx, code.locationName, [code].map(c => c.barcode), 'Deleted');
+        await setLocationsRMMCode(tx, code.locationName, [code].map(c => c.barcode), 'Deleted', '');
       });
     }
   }
@@ -65,14 +56,11 @@ async function notifyForToBeDeletedCodes () {
   await sendEmailForToBeDeletedCodes(message.join('<br/>'));
   await prisma.$transaction(async (tx) => {
     await setLocationsRMMCode(tx, 'storage', containers.filter(c => c.locationName === 'storage')
-      .map(c => c.barcode), 'DeleteNotifSent');
+      .map(c => c.barcode), 'DeleteNotifSent', '');
     await setLocationsRMMCode(tx, 'shelf', containers.filter(c => c.locationName === 'shelf')
-      .map(c => c.barcode), 'DeleteNotifSent');
+      .map(c => c.barcode), 'DeleteNotifSent', '');
     await setLocationsRMMCode(tx, 'box', containers.filter(c => c.locationName === 'box')
-      .map(c => c.barcode), 'DeleteNotifSent');
-  },{
-    maxWait: 10000, // Max time (ms) to wait for a transaction slot (default: 2000)
-    timeout: 30000, // Max time (ms) the transaction can run (default: 5000)
+      .map(c => c.barcode), 'DeleteNotifSent', '');
   });
 }
 
