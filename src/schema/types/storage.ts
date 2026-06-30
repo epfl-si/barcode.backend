@@ -19,6 +19,8 @@ const StorageRef = builder.prismaObject('Storage', {
     createdOn: t.expose('createdOn', { type: 'DateTime' }),
     deletedBy: t.exposeString('deletedBy'),
     deletedOn: t.expose('deletedOn', { type: 'DateTime', nullable: true }),
+    rmmStatus: t.exposeString('rmmStatus'),
+    rmmMessage: t.exposeString('rmmStatus'),
     shelves: t.relation('shelves', {
       authScopes: {
         needPermission: 'canReadShelf'

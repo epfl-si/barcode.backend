@@ -12,6 +12,8 @@ builder.prismaObject('Box', {
     createdOn: t.expose('createdOn', { type: 'DateTime' }),
     deletedBy: t.exposeString('deletedBy'),
     deletedOn: t.expose('deletedOn', { type: 'DateTime', nullable: true }),
+    rmmStatus: t.exposeString('rmmStatus'),
+    rmmMessage: t.exposeString('rmmStatus'),
   }),
 });
 
