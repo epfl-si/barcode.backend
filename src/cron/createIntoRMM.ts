@@ -75,7 +75,7 @@ async function createLocation (location: Record<string, string | number>, code: 
     // If code correctly created on RMM, or it already exists, change status on LIL to Created
     console.log(`${code.barcode} CREATED`);
     await prisma.$transaction(async (tx) => {
-      await setLocationsRMMCode(tx, code.locationName, [code.barcode], 'Created', '');
+      await setLocationsRMMCode(tx, code.locationName, [code.barcode], 'Created');
     });
   } else {
     const error = createdLocation.message.substring(0, createdLocation.message.indexOf(';'));

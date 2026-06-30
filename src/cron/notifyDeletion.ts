@@ -41,7 +41,7 @@ async function notifyForToBeDeletedCodes () {
     } catch ( e ) {
       console.log(`${code.barcode} DELETED`);
       await prisma.$transaction(async (tx) => {
-        await setLocationsRMMCode(tx, code.locationName, [code].map(c => c.barcode), 'Deleted', '');
+        await setLocationsRMMCode(tx, code.locationName, [code].map(c => c.barcode), 'Deleted');
       });
     }
   }
@@ -56,11 +56,11 @@ async function notifyForToBeDeletedCodes () {
   await sendEmailForRMM(message.join('<br/>'), "toBeDeletedCodes");
   await prisma.$transaction(async (tx) => {
     await setLocationsRMMCode(tx, 'storage', containers.filter(c => c.locationName === 'storage')
-      .map(c => c.barcode), 'DeleteNotifSent', '');
+      .map(c => c.barcode), 'DeleteNotifSent');
     await setLocationsRMMCode(tx, 'shelf', containers.filter(c => c.locationName === 'shelf')
-      .map(c => c.barcode), 'DeleteNotifSent', '');
+      .map(c => c.barcode), 'DeleteNotifSent');
     await setLocationsRMMCode(tx, 'box', containers.filter(c => c.locationName === 'box')
-      .map(c => c.barcode), 'DeleteNotifSent', '');
+      .map(c => c.barcode), 'DeleteNotifSent');
   });
 }
 
