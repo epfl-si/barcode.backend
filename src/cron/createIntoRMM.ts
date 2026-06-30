@@ -1,7 +1,7 @@
 import {getPrismaForUser} from "../lib/auditablePrisma";
 import {Code, getCodesByStatus, setLocationsRMMCode} from "../schema/types/location";
 import {callRMM, getQueryString, getRoomFromApiByName} from "../lib/api";
-import {sendEmailForNotAllowedRooms} from "../lib/email/mailer";
+import {sendEmailForRMM} from "../lib/email/mailer";
 
 const cronUser: UserInfo = {
   username: 'LHD-cron'
@@ -66,7 +66,7 @@ export async function createIntoRMM () {
   }
 
   console.log(`Sending notification for NotAllowedRooms: ${body.join('\n')}`);
-  await sendEmailForNotAllowedRooms(body.join('<br/>'));
+  await sendEmailForRMM(body.join('<br/>'), "notAllowedRooms");
 }
 
 async function createLocation (location: Record<string, string | number>, code: Code) {

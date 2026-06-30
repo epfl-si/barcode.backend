@@ -1,5 +1,5 @@
 import {getPrismaForUser} from "../lib/auditablePrisma";
-import {sendEmailForToBeDeletedCodes} from "../lib/email/mailer";
+import {sendEmailForRMM} from "../lib/email/mailer";
 import {getFormattedDate} from "../lib/date";
 import {Code, getCodesByStatus, setLocationsRMMCode} from "../schema/types/location";
 import {callRMM, getRoomFromApiByName} from "../lib/api";
@@ -53,7 +53,7 @@ async function notifyForToBeDeletedCodes () {
   }
 
   console.log(`Sending notification for ToBeDeleted codes: ${message.join('\n')}`);
-  await sendEmailForToBeDeletedCodes(message.join('<br/>'));
+  await sendEmailForRMM(message.join('<br/>'), "toBeDeletedCodes");
   await prisma.$transaction(async (tx) => {
     await setLocationsRMMCode(tx, 'storage', containers.filter(c => c.locationName === 'storage')
       .map(c => c.barcode), 'DeleteNotifSent', '');

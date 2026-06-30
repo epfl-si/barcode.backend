@@ -11,21 +11,15 @@ export const mailer = nodemailer.createTransport({
 	},
 });
 
-export async function sendEmailForToBeDeletedCodes(message: string) {
-	let template = toBeDeletedCodes;
-	const body = template.body.replaceAll("{{message}}", message);
-
-  const to = [process.env.CATALYSE_EMAIL!];
-	await mailer.sendMail({
-		from: `"LIL" <${process.env.SERVICE_ACCOUNT_EMAIL}>`,
-		to: to,
-		subject: template.subject,
-		html: process.env.ENVIRONMENT === 'prod' ? body : `${logRecipients(to, [], [])}\n${body}`
-	});
-}
-
-export async function sendEmailForNotAllowedRooms(message: string) {
+export async function sendEmailForRMM(message: string, templateName: 'notAllowedRooms' | 'toBeDeletedCodes') {
   let template = notAllowedRooms;
+  switch ( templateName ) {
+    case "notAllowedRooms":
+      template = notAllowedRooms;
+      break;
+    case "toBeDeletedCodes":
+      template = toBeDeletedCodes;
+  }
   const body = template.body.replaceAll("{{message}}", message);
 
   const to = [process.env.CATALYSE_EMAIL!];
