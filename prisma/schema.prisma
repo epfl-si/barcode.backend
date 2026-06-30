@@ -20,6 +20,7 @@ model RoomType {
   id        Int    @id @default(autoincrement()) @map("id")
   shortName String @unique @map("short_name") @db.VarChar(3)
   symbol    String @unique @map("symbol") @db.VarChar(10)
+  rmmName   String @unique @map("rmm_name") @db.VarChar(20)
 
   allowedTypeValues AllowedTypeValue[]
   storages          Storage[]
