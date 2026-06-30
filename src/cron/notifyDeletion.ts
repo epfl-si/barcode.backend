@@ -34,7 +34,7 @@ async function notifyForToBeDeletedCodes () {
     try {
       const availableRMMContainers = await callRMM('/epfl/erd-services/json/containersearch/search', {locations: location, status: 5, timezoneoffset: 0});
       // SubLocation could be deleted only if totalcount === 0
-      if (!availableRMMContainers.totalResults) {
+      if (availableRMMContainers.totalResults === null) {
         throw new Error("Container doesn't exist.")
       }
       containers.push({...code, totalCount: availableRMMContainers.totalResults});

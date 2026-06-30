@@ -14,6 +14,7 @@ export interface Code {
   totalCount?: number,
   roomType: string;
   roomName: string;
+  rmmErrorMessage?: string;
 }
 
 export async function restoreLocation (transaction: any, locationName: 'storage' | 'shelf' | 'box', barcode: string) {
