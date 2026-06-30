@@ -29,13 +29,14 @@ export async function restoreLocation (transaction: any, locationName: 'storage'
   });
 }
 
-export async function setLocationsRMMCode (transaction: any, locationName: 'storage' | 'shelf' | 'box', barcode: string[], status: RMMCodeStatus) {
+export async function setLocationsRMMCode (transaction: any, locationName: 'storage' | 'shelf' | 'box', barcode: string[], status: RMMCodeStatus, message: string) {
   await transaction[locationName].updateMany({
     where: {
       barcode: {in: barcode}
     },
     data: {
-      rmmStatus: status
+      rmmStatus: status,
+      rmmMessage: message
     }
   });
 }
