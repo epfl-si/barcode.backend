@@ -1,8 +1,7 @@
 interface UserInfo {
   groups: string[];
   username: string;
-  familyName: string,
-  givenName: string,
+  name: string,
   sciper: string,
   isAdmin?: boolean;
   isCosec?: boolean;

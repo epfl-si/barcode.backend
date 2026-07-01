@@ -29,8 +29,7 @@ export async function authenticateFromBearerToken(req: Request<{}, any, any, Par
     groups: userGroups,
     username: ( authenticationResult.unique_name ||
       authenticationResult.gaspar ),  // EPFL-ism in Entra
-    familyName: authenticationResult.family_name,
-    givenName: authenticationResult.given_name,
+    name: authenticationResult.given_name + ' ' + authenticationResult.family_name,
     sciper: authenticationResult.uniqueid
   };
 
