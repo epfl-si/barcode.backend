@@ -1,9 +1,9 @@
 interface UserInfo {
   groups?: string[];
   username: string;
-  name?: string,
-  sciper?: string,
-  userEmail?: string,
+  name?: string;
+  sciper?: string;
+  userEmail?: string;
   isAdmin?: boolean;
   isCosec?: boolean;
   isReadOnly?: boolean;
