@@ -40,7 +40,7 @@ export async function authenticateFromBearerToken(req: Request<{}, any, any, Par
 
   user.isAdmin = hasRoleAdmin;
   user.isCosec = hasRoleCosec;
-  user.isReadOnly = hasRoleReadOnly;
+  user.isReadOnly = hasRoleReadOnly && !hasRoleCosec && !hasRoleAdmin;
   user.canReadStorage = hasRoleAdmin || hasRoleCosec || hasRoleReadOnly;
   user.canCreateStorage = hasRoleAdmin || hasRoleCosec;
   user.canDeleteStorage = hasRoleAdmin || hasRoleCosec;
