@@ -7,7 +7,7 @@
 
 */
 -- CreateEnum
-CREATE TYPE "rmm_code_status" AS ENUM ('Created', 'Deleted', 'DeleteNotifSent', 'RestoreNotifSent', 'ToBeCreated', 'ToBeDeleted');
+CREATE TYPE "rmm_code_status" AS ENUM ('Created', 'Deleted', 'DeleteNotifSent', 'ToBeCreated', 'ToBeDeleted');
 
 -- AlterTable
 ALTER TABLE "boxes" ADD COLUMN     "rmm_status" "rmm_code_status" NOT NULL;

@@ -83,7 +83,6 @@ enum RMMCodeStatus {
   Created
   Deleted
   DeleteNotifSent
-  RestoreNotifSent
   ToBeCreated
   ToBeDeleted
   ErrorCreating
