@@ -14,7 +14,7 @@ Le service LIL`,
 }
 
 export const notAllowedRooms: EmailTemplate = {
-  subject: `LIL - Liste des codes non créés dans RMM`, // TODO email Snow
+  subject: `LIL - Liste des codes non créés dans RMM`,
   body: `Bonjour,<br/><br/>
 Voici la liste des location(s) qui n'ont pas été créés correctement dans RMM et <b>qui doivent être traité manuellement</b>: <br/><br/>
 {{message}}<br/><br/>
