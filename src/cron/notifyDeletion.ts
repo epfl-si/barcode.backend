@@ -31,19 +31,16 @@ async function notifyForToBeDeletedCodes () {
       locationPayload = `${room.site}>${room.building}>${room.floor}>${codeToBeDeleted.roomName}>${codeToBeDeleted.parentNiv2}>${codeToBeDeleted.parentNiv1}>${codeToBeDeleted.barcode}`;
     }
     // Check RMM if barcode sublocation contains something
-    try {
-      const availableRMMContainers = await callRMM('/epfl/erd-services/json/containersearch/search', {locations: locationPayload, status: 5, timezoneoffset: 0});
-      // SubLocation could be deleted only if totalcount === 0
-      if (availableRMMContainers.totalResults === null) {
-        throw new Error("Container doesn't exist.")
-      }
-      containers.push({...codeToBeDeleted, totalCount: availableRMMContainers.totalResults});
-    } catch ( e ) {
+    const availableRMMContainers = await callRMM('/epfl/erd-services/json/containersearch/search', {locations: locationPayload, status: 5, timezoneoffset: 0});
+    // SubLocation could be deleted only if totalcount === 0
+    if (availableRMMContainers.totalResults === null) {
       console.log(`${codeToBeDeleted.barcode} DELETED`);
       await prisma.$transaction(async (tx) => {
         await setLocationsRMMCode(tx, codeToBeDeleted.locationName, [codeToBeDeleted].map(c => c.barcode), 'Deleted');
       });
+      continue;
     }
+    containers.push({...codeToBeDeleted, totalCount: availableRMMContainers.totalResults});
   }
   const message: string[] = containers.map(code =>
     `<b>${code.barcode}</b> · Supprimé dans LIL le ${getFormattedDate(code.deletedOn)} par ${code.deletedBy}. Il contient ${code.totalCount} container${code.totalCount && code.totalCount > 1 ? 's' : ''}.`);
