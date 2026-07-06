@@ -16,32 +16,32 @@ const prisma = getPrismaForUser(cronUser);
  */
 async function notifyForToBeDeletedCodes () {
   // Get details for each code from DB given its RMM status
-  const codes: Code[] = await getCodesByStatus(prisma, 'ToBeDeleted');
+  const codesToBeDeleted: Code[] = await getCodesByStatus(prisma, 'ToBeDeleted');
   const containers: Code[] = [];
-  for ( const code of codes) {
+  for ( const codeToBeDeleted of codesToBeDeleted) {
     // Call api to get Site>Building>Floor given the room
-    const room: { name: string; building: string; site: string; floor: string; } = await getRoomFromApiByName(code.roomName);
+    const room: { name: string; building: string; site: string; floor: string; } = await getRoomFromApiByName(codeToBeDeleted.roomName);
     // Build querystring
-    let location = '';
-    if (code.locationName === 'storage') {
-      location = `${room.site}>${room.building}>${room.floor}>${code.roomName}>${code.barcode}`;
-    } else if (code.locationName === 'shelf') {
-      location = `${room.site}>${room.building}>${room.floor}>${code.roomName}>${code.parentNiv1}>${code.barcode}`;
-    } else if (code.locationName === 'box') {
-      location = `${room.site}>${room.building}>${room.floor}>${code.roomName}>${code.parentNiv2}>${code.parentNiv1}>${code.barcode}`;
+    let locationPayload = '';
+    if (codeToBeDeleted.locationName === 'storage') {
+      locationPayload = `${room.site}>${room.building}>${room.floor}>${codeToBeDeleted.roomName}>${codeToBeDeleted.barcode}`;
+    } else if (codeToBeDeleted.locationName === 'shelf') {
+      locationPayload = `${room.site}>${room.building}>${room.floor}>${codeToBeDeleted.roomName}>${codeToBeDeleted.parentNiv1}>${codeToBeDeleted.barcode}`;
+    } else if (codeToBeDeleted.locationName === 'box') {
+      locationPayload = `${room.site}>${room.building}>${room.floor}>${codeToBeDeleted.roomName}>${codeToBeDeleted.parentNiv2}>${codeToBeDeleted.parentNiv1}>${codeToBeDeleted.barcode}`;
     }
     // Check RMM if barcode sublocation contains something
     try {
-      const availableRMMContainers = await callRMM('/epfl/erd-services/json/containersearch/search', {locations: location, status: 5, timezoneoffset: 0});
+      const availableRMMContainers = await callRMM('/epfl/erd-services/json/containersearch/search', {locations: locationPayload, status: 5, timezoneoffset: 0});
       // SubLocation could be deleted only if totalcount === 0
       if (availableRMMContainers.totalResults === null) {
         throw new Error("Container doesn't exist.")
       }
-      containers.push({...code, totalCount: availableRMMContainers.totalResults});
+      containers.push({...codeToBeDeleted, totalCount: availableRMMContainers.totalResults});
     } catch ( e ) {
-      console.log(`${code.barcode} DELETED`);
+      console.log(`${codeToBeDeleted.barcode} DELETED`);
       await prisma.$transaction(async (tx) => {
-        await setLocationsRMMCode(tx, code.locationName, [code].map(c => c.barcode), 'Deleted');
+        await setLocationsRMMCode(tx, codeToBeDeleted.locationName, [codeToBeDeleted].map(c => c.barcode), 'Deleted');
       });
     }
   }
