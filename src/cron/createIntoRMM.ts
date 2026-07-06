@@ -15,47 +15,47 @@ const prisma = getPrismaForUser(cronUser);
  */
 export async function createIntoRMM () {
   // Get details for each code from DB given its RMM status
-  const codes: Code[] = await getCodesByStatus(prisma, 'ToBeCreated');
+  const codesToBeCreated: Code[] = await getCodesByStatus(prisma, 'ToBeCreated');
   const notAllowedCodes: Code[] = [];
-  for ( const code of codes) {
+  for ( const codeToBeCreated of codesToBeCreated) {
     // Call api to get Site>Building>Floor given the room
-    const room: { name: string; building: string; site: string; floor: string; } = await getRoomFromApiByName(code.roomName);
+    const room: { name: string; building: string; site: string; floor: string; } = await getRoomFromApiByName(codeToBeCreated.roomName);
     // Call RMM to create location
-    const location: Record<string, string | number> = {
+    const locationPayload: Record<string, string | number> = {
       site: room.site,
       building: room.building,
       floor: room.floor,
       room: room.name,
-      roomType: code.roomType
+      roomType: codeToBeCreated.roomType
     };
-    if (code.locationName === 'storage') {
-      location.sublocationName1 = code.barcode;
-    } else if (code.locationName === 'shelf') {
-      location.sublocationName1 = code.parentNiv1;
-      location.sublocationName2 = code.barcode;
-    } else if (code.locationName === 'box') {
-      location.sublocationName1 = code.parentNiv2;
-      location.sublocationName2 = code.parentNiv1;
-      location.sublocationName3 = code.barcode;
+    if (codeToBeCreated.locationName === 'storage') {
+      locationPayload.sublocationName1 = codeToBeCreated.barcode;
+    } else if (codeToBeCreated.locationName === 'shelf') {
+      locationPayload.sublocationName1 = codeToBeCreated.parentNiv1;
+      locationPayload.sublocationName2 = codeToBeCreated.barcode;
+    } else if (codeToBeCreated.locationName === 'box') {
+      locationPayload.sublocationName1 = codeToBeCreated.parentNiv2;
+      locationPayload.sublocationName2 = codeToBeCreated.parentNiv1;
+      locationPayload.sublocationName3 = codeToBeCreated.barcode;
     }
 
-    if (code.roomType === 'LAB') {
-      await createLocation(location, code);
+    if (codeToBeCreated.roomType === 'LAB') {
+      await createLocation(locationPayload, codeToBeCreated);
     } else {
       // Check in RMM if room already exists
       const roomInRMM = await callRMM('/epfl/erd-services/json/containersearch/search',
-        {locations: `${room.site}>${room.building}>${room.floor}>${code.roomName}`, status: 5, timezoneoffset: 0});
+        {locations: `${room.site}>${room.building}>${room.floor}>${codeToBeCreated.roomName}`, status: 5, timezoneoffset: 0});
       if (roomInRMM.totalResults === null) {
-        const message = `Room ${code.roomName} - (${code.roomType}) ne peut pas être créée dans RMM.`;
-        notAllowedCodes.push({...code, rmmErrorMessage: message});
+        const message = `Room ${codeToBeCreated.roomName} - (${codeToBeCreated.roomType}) ne peut pas être créée dans RMM.`;
+        notAllowedCodes.push({...codeToBeCreated, rmmErrorMessage: message});
 
         await prisma.$transaction(async (tx) => {
-          await setLocationsRMMCode(tx, code.locationName, [code.barcode], 'ErrorCreating', message);
+          await setLocationsRMMCode(tx, codeToBeCreated.locationName, [codeToBeCreated.barcode], 'ErrorCreating', message);
         });
       } else {
-        const errorCode = await createLocation(location, code);
+        const errorCode = await createLocation(locationPayload, codeToBeCreated);
         if (errorCode) {
-          notAllowedCodes.push({...code, rmmErrorMessage: `<b>${code.barcode}</b>: ${errorCode}`});
+          notAllowedCodes.push({...codeToBeCreated, rmmErrorMessage: `<b>${codeToBeCreated.barcode}</b>: ${errorCode}`});
         }
       }
     }
@@ -79,7 +79,7 @@ async function createLocation (location: Record<string, string | number>, code: 
     });
   } else {
     const error = createdLocation.message.substring(0, createdLocation.message.indexOf(';'));
-    console.log(`Error while creating code: ${getQueryString(location, ' ')} - ${error}`);
+    console.error(`Error while creating code: ${getQueryString(location, ' ')} - ${error}`);
     await prisma.$transaction(async (tx) => {
       await setLocationsRMMCode(tx, code.locationName, [code.barcode], 'ErrorCreating', error);
     });
