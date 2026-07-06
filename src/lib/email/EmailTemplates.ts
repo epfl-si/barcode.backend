@@ -1,11 +1,11 @@
 export type EmailTemplate = {
-	subject: string;
-	body: string;
+  subject: string;
+  body: string;
 };
 
 export const toBeDeletedCodes: EmailTemplate = {
-	subject: `LIL - Liste des codes supprimés`,
-	body: `Bonjour,<br/><br/>
+  subject: `LIL - Liste des codes supprimés`,
+  body: `Bonjour,<br/><br/>
 Voici la liste des location(s) qui ont été supprimés dans LIL et <b>qui doivent être supprimés dans RMM</b>: <br/><br/>
 {{message}}<br/><br/>
 Pour toutes questions, merci de contacter le support Catalyse.<br/><br/>
@@ -24,7 +24,7 @@ Le service LIL`,
 }
 
 export function logRecipients (to: string[], cc: string[], bcc: string[]) {
-	return `<b>TO</b>: ${to.join(', ')}<br/>
-	<b>CC</b>: ${cc.join(', ')}<br/>
-	<b>BCC</b>: ${bcc.join(', ')}<br/><br/>`
+  return `<b>TO</b>: ${to.join(', ')}<br/>
+  <b>CC</b>: ${cc.join(', ')}<br/>
+  <b>BCC</b>: ${bcc.join(', ')}<br/><br/>`
 }
