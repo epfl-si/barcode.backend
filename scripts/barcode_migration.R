@@ -125,7 +125,7 @@ get_sub_storage_type <- function(stoproperty) {
 get_room_id <- function(room_label) {
   room_label <- URLencode(room_label, reserved = TRUE)
 
-  req <- request(sprintf("https://api.epfl.ch/v1/rooms/%s", room_label)) |>
+  req <- request(sprintf("https://api.epfl.ch/v1/rooms?query=%s", room_label)) |>
     req_auth_basic(
       pg_conf$SERVICE_ACCOUNT$NAME,
       pg_conf$SERVICE_ACCOUNT$PASSWORD
@@ -144,12 +144,12 @@ get_room_id <- function(room_label) {
 
   json <- tryCatch(resp_body_json(resp), error = function(e) NULL)
 
-  if (is.null(json) || is.null(json$id)) {
+  if (is.null(json) || is.null(json$rooms) || length(json$rooms) == 0) {
     print(sprintf("Local inexistant : %s", room_label))
     return(-1)
   }
 
-  json$id
+  json$rooms[[1]]$id
 }
 
 get_num_storage <- function(barcode) {
