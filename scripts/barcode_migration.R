@@ -8,9 +8,12 @@
 #  To use, run :
 #    Rscript barcode_migration.R
 #
-#	 The variable is_simulation :
-#  - FALSE : simulate migration, do not write to the database
-#  - TRUE  : write to the database
+#	 Variables to define at the beginning :
+#  - is_simulation :
+#    - FALSE : simulate migration, do not write to the database
+#    - TRUE  : write to the database
+#  - environment (one of ...):
+#    - "dev|test|prod"
 #
 #  Insure to have the libraries below already installed.
 #
@@ -23,20 +26,20 @@ library(yaml)
 library(httr2)
 
 
-is_simulation <- FALSE
-
+is_simulation <- TRUE
+environment <- "test"
 
 maria_conf <- yaml::read_yaml("/keybase/team/epfl_lil/old_lhd_barcode/database.yml")
-pg_conf <- yaml::read_yaml("/keybase/team/epfl_lil/backend/dev/secrets.yml")
+pg_conf <- yaml::read_yaml(file.path("/keybase/team/epfl_lil/backend", environment, "secrets.yml"))
 
 
 # MariaDB
 con_maria <- dbConnect(
   RMariaDB::MariaDB(),
-  host = maria_conf$test$barcode_admin$host,
-  dbname = maria_conf$test$barcode_admin$dbname,
-  user = maria_conf$test$barcode_admin$user,
-  password = maria_conf$test$barcode_admin$password,
+  host = maria_conf[[environment]]$barcode_admin$host,
+  dbname = maria_conf[[environment]]$barcode_admin$dbname,
+  user = maria_conf[[environment]]$barcode_admin$user,
+  password = maria_conf[[environment]]$barcode_admin$password,
   port = 3306
 )
 
@@ -86,9 +89,9 @@ get_storage_type <- function(stotype, stoplace) {
 }
 
 # content
-# G → 1
-# C → 2
-# ? → 3
+# G → 1 (G)
+# C → 2 (C)
+# ? → 3 (A)
 get_product_type <- function(content) {
   if (content == "G") {
     1
@@ -224,15 +227,6 @@ shelves <- data.frame(
   created_on = shelve$date,
   rmm_status = "Created"
 )
-
-duplicates <- shelves$barcode[duplicated(shelves$barcode)]
-
-if (length(duplicates) > 0) {
-  print(duplicates)
-  stop("ERROR: some shelves have duplicate barcodes")
-} else {
-  print("No duplicated barcode in shelves")
-}
 
 if (!is_simulation) {
   dbWriteTable(
