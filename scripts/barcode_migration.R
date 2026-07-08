@@ -8,7 +8,7 @@
 #  To use, run :
 #    Rscript barcode_migration.R
 #
-#	 Variables to define at the beginning :
+#  Variables to define at the beginning :
 #  - is_simulation :
 #    - FALSE : simulate migration, do not write to the database
 #    - TRUE  : write to the database
