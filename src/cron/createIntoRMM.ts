@@ -46,7 +46,7 @@ export async function createIntoRMM () {
       const roomInRMM = await callRMM('/epfl/erd-services/json/containersearch/search',
         {locations: `${room.site}>${room.building}>${room.floor}>${codeToBeCreated.roomName}`, status: 5, timezoneoffset: 0});
       if (roomInRMM.totalResults === null) {
-        const message = `Room ${codeToBeCreated.roomName} - (${codeToBeCreated.roomType}) ne peut pas être créée dans RMM.`;
+        const message = `Room <b>${codeToBeCreated.roomName}</b> - (${codeToBeCreated.roomType}) can't be created in RMM.`;
         notAllowedCodes.push({...codeToBeCreated, rmmErrorMessage: message});
 
         await prisma.$transaction(async (tx) => {
