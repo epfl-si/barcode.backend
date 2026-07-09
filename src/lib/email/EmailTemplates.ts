@@ -15,12 +15,12 @@ Le service LIL`,
 
 export const notAllowedRooms: EmailTemplate = {
   subject: `LIL - Liste des codes non créés dans RMM`,
-  body: `Bonjour,<br/><br/>
-Voici la liste des location(s) qui n'ont pas été créés correctement dans RMM et <b>qui doivent être traité manuellement</b>: <br/><br/>
+  body: `Hi,<br/><br/>
+The creation of your Location / Sub-Location was unsuccessful.<br/><br/>
 {{message}}<br/><br/>
-Pour toutes questions, merci de contacter le support Catalyse.<br/><br/>
-Merci,<br/><br/>
-Le service LIL`,
+Please contact Sesame for assistance.<br/><br/>
+Best regards,<br/><br/>
+Service LIL / RMM`,
 }
 
 export function logRecipients (to: string[], cc: string[], bcc: string[]) {
