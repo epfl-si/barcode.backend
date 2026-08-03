@@ -23,9 +23,9 @@ export async function sendEmailForRMM(message: string, templateName: 'notAllowed
   const body = template.body.replaceAll("{{message}}", message);
 
   await mailer.sendMail({
-    from: `"LIL" <${process.env.SERVICE_ACCOUNT_EMAIL}>`,
+    from: `"LIL ${process.env.ENVIRONMENT === 'prod' ? '' : 'TEST'}" <${process.env.SERVICE_ACCOUNT_EMAIL}>`,
     to: to,
     subject: template.subject,
-    html: process.env.ENVIRONMENT === 'prod' ? body : `${logRecipients(to, [], [])}\n${body}`
+    html: body
   });
 }
