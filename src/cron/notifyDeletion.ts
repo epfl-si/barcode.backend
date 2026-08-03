@@ -50,7 +50,7 @@ async function notifyForToBeDeletedCodes () {
   }
 
   console.log(`Sending notification for ToBeDeleted codes: ${message.join('\n')}`);
-  await sendEmailForRMM(message.join('<br/>'), "toBeDeletedCodes");
+  await sendEmailForRMM(message.join('<br/>'), "toBeDeletedCodes", [process.env.CATALYSE_EMAIL!]);
   await prisma.$transaction(async (tx) => {
     await setLocationsRMMCode(tx, 'storage', containers.filter(c => c.locationName === 'storage')
       .map(c => c.barcode), 'DeleteNotifSent');
