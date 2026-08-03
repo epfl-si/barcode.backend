@@ -61,19 +61,19 @@ function getApiBasicAuth () {
 }
 
 export async function getRoomsFromApi(search: string): Promise<any> {
-  const url = `https://api.epfl.ch/v1/rooms?query=${encodeURIComponent(search)}`;
+  const url = `${process.env.API_EPFL_CH_URL}/rooms?query=${encodeURIComponent(search)}`;
 
   return await callExternalApi(url, getApiBasicAuth());
 }
 
 export async function getRoomFromApiById(id: number): Promise<any> {
-  const url = `https://api.epfl.ch/v1/rooms/${id}`;
+  const url = `${process.env.API_EPFL_CH_URL}/rooms/${id}`;
 
   return await callExternalApi(url, getApiBasicAuth());
 }
 
 export async function getRoomFromApiByName(name: string): Promise<any> {
-  const url = `https://api.epfl.ch/v1/rooms?query=${encodeURIComponent(name)}`;
+  const url = `${process.env.API_EPFL_CH_URL}/rooms?query=${encodeURIComponent(name)}`;
 
   const rooms = await callExternalApi(url, getApiBasicAuth());
   if (!rooms || !rooms.rooms || rooms.rooms.length === 0) {
