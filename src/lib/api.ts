@@ -87,6 +87,12 @@ export async function getRoomFromApiByName(name: string): Promise<any> {
   }))[0];
 }
 
+export async function getUserFromApi(sciper: string): Promise<any[]> {
+  const url = `${process.env.API_EPFL_CH_URL}/persons?ids=${sciper}&isaccredited=1`;
+
+  return await callExternalApi(url, getApiBasicAuth());
+}
+
 function getAccessSignature(date: string, uri: string, body: Record<string, string | number>): string {
   let signature = `${date}:${uri}:${getQueryString(body, ':')}:`;
   const binary = CryptoJS.HmacSHA256(signature, process.env.RMM_ENCRYPTED_KEY!);
