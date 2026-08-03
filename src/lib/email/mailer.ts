@@ -11,7 +11,7 @@ export const mailer = nodemailer.createTransport({
 	},
 });
 
-export async function sendEmailForRMM(message: string, templateName: 'notAllowedRooms' | 'toBeDeletedCodes') {
+export async function sendEmailForRMM(message: string, templateName: 'notAllowedRooms' | 'toBeDeletedCodes', to: string[]) {
   let template = notAllowedRooms;
   switch ( templateName ) {
     case "notAllowedRooms":
@@ -22,7 +22,6 @@ export async function sendEmailForRMM(message: string, templateName: 'notAllowed
   }
   const body = template.body.replaceAll("{{message}}", message);
 
-  const to = [process.env.CATALYSE_EMAIL!];
   await mailer.sendMail({
     from: `"LIL" <${process.env.SERVICE_ACCOUNT_EMAIL}>`,
     to: to,
