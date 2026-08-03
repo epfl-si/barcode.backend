@@ -1,6 +1,6 @@
 import {getPrismaForUser} from "../lib/auditablePrisma";
 import {Code, getCodesByStatus, setLocationsRMMCode} from "../schema/types/location";
-import {callRMM, getQueryString, getRoomFromApiByName} from "../lib/api";
+import {callRMM, getQueryString, getRoomFromApiByName, getUserFromApi} from "../lib/api";
 import {sendEmailForRMM} from "../lib/email/mailer";
 
 const cronUser: UserInfo = {
@@ -14,9 +14,11 @@ const prisma = getPrismaForUser(cronUser);
  * For each code, notify Catalyse
  */
 export async function createIntoRMM () {
+  const createdCodesByUser: Record<string, string[]> = {};
+  const errorCodesByUser: Record<string, string[]> = {};
+
   // Get details for each code from DB given its RMM status
   const codesToBeCreated: Code[] = await getCodesByStatus(prisma, 'ToBeCreated');
-  const notAllowedCodes: Code[] = [];
   for ( const codeToBeCreated of codesToBeCreated) {
     // Call api to get Site>Building>Floor given the room
     const room: { name: string; building: string; site: string; floor: string; } = await getRoomFromApiByName(codeToBeCreated.roomName);
@@ -40,33 +42,49 @@ export async function createIntoRMM () {
     }
 
     if (codeToBeCreated.roomType === 'LAB') {
-      await createLocation(locationPayload, codeToBeCreated);
+      const error = await createLocation(locationPayload, codeToBeCreated);
+      if (error) {
+        addCode(errorCodesByUser, codeToBeCreated.createdBy, `<b>${codeToBeCreated.barcode}</b>: ${error}`);
+      } else {
+        addCode(createdCodesByUser, codeToBeCreated.createdBy, codeToBeCreated.barcode);
+      }
     } else {
       // Check in RMM if room already exists
       const roomInRMM = await callRMM('/epfl/erd-services/json/containersearch/search',
         {locations: `${room.site}>${room.building}>${room.floor}>${codeToBeCreated.roomName}`, status: 5, timezoneoffset: 0});
       if (roomInRMM.totalResults === null) {
         const message = `Room <b>${codeToBeCreated.roomName}</b> - (${codeToBeCreated.roomType}) can't be created in RMM.`;
-        notAllowedCodes.push({...codeToBeCreated, rmmErrorMessage: message});
+        addCode(errorCodesByUser, codeToBeCreated.createdBy, message);
 
         await prisma.$transaction(async (tx) => {
           await setLocationsRMMCode(tx, codeToBeCreated.locationName, [codeToBeCreated.barcode], 'ErrorCreating', message);
         });
       } else {
-        const errorCode = await createLocation(locationPayload, codeToBeCreated);
-        if (errorCode) {
-          notAllowedCodes.push({...codeToBeCreated, rmmErrorMessage: `<b>${codeToBeCreated.barcode}</b>: ${errorCode}`});
+        const error = await createLocation(locationPayload, codeToBeCreated);
+        if (error) {
+          addCode(errorCodesByUser, codeToBeCreated.createdBy, `<b>${codeToBeCreated.barcode}</b>: ${error}`);
+        } else {
+          addCode(createdCodesByUser, codeToBeCreated.createdBy, codeToBeCreated.barcode);
         }
       }
     }
   }
-  const body: string[] = notAllowedCodes.map(code => code.rmmErrorMessage!);
-  if (body.length === 0) {
-    return;
+
+  for (const key in createdCodesByUser) {
+    const user = await getUserFromApi(key);
+    if (user.length == 0) return;
+    const message = createdCodesByUser[key].join('\n');
+    console.log(`Sending notification for Created: ${message}`);
+    await sendEmailForRMM(message, "created", [user[0].mail]);
   }
 
-  console.log(`Sending notification for NotAllowedRooms: ${body.join('\n')}`);
-  await sendEmailForRMM(body.join('<br/>'), "notAllowedRooms");
+  for (const key in createdCodesByUser) {
+    const user = await getUserFromApi(key);
+    if (user.length == 0) return;
+    const message = errorCodesByUser[key].join('\n');
+    console.log(`Sending notification for NotAllowedRooms: ${message}`);
+    await sendEmailForRMM(message, "notAllowedRooms", [user[0].mail]);
+  }
 }
 
 async function createLocation (location: Record<string, string | number>, code: Code) {
@@ -85,6 +103,15 @@ async function createLocation (location: Record<string, string | number>, code: 
     });
     return error;
   }
+}
+
+function addCode(codesByUser: Record<string, string[]>, user: string, code: string) {
+  if (!user) return;
+
+  if (!codesByUser.hasOwnProperty(user)) {
+    codesByUser[user] = [];
+  }
+  codesByUser[user].push(code);
 }
 
 createIntoRMM();
