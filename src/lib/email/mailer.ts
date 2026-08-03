@@ -1,5 +1,5 @@
 import * as nodemailer from "nodemailer";
-import {logRecipients, notAllowedRooms, toBeDeletedCodes,} from "./EmailTemplates";
+import {created, notAllowedRooms, toBeDeletedCodes} from "./EmailTemplates";
 
 export const mailer = nodemailer.createTransport({
 	host: process.env.SMTP_HOST,
@@ -11,7 +11,7 @@ export const mailer = nodemailer.createTransport({
 	},
 });
 
-export async function sendEmailForRMM(message: string, templateName: 'notAllowedRooms' | 'toBeDeletedCodes', to: string[]) {
+export async function sendEmailForRMM(message: string, templateName: 'notAllowedRooms' | 'toBeDeletedCodes' | 'created', to: string[]) {
   let template = notAllowedRooms;
   switch ( templateName ) {
     case "notAllowedRooms":
@@ -19,6 +19,10 @@ export async function sendEmailForRMM(message: string, templateName: 'notAllowed
       break;
     case "toBeDeletedCodes":
       template = toBeDeletedCodes;
+      break;
+    case "created":
+      template = created;
+      break;
   }
   const body = template.body.replaceAll("{{message}}", message);
 
