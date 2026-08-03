@@ -14,7 +14,7 @@ Le service LIL`,
 }
 
 export const notAllowedRooms: EmailTemplate = {
-  subject: `LIL - Liste des codes non créés dans RMM`,
+  subject: `LIL - Issue with your Location / Sub-Location creation`,
   body: `Hi,<br/><br/>
 The creation of your Location / Sub-Location was unsuccessful.<br/><br/>
 {{message}}<br/><br/>
@@ -23,8 +23,11 @@ Best regards,<br/><br/>
 Service LIL / RMM`,
 }
 
-export function logRecipients (to: string[], cc: string[], bcc: string[]) {
-  return `<b>TO</b>: ${to.join(', ')}<br/>
-  <b>CC</b>: ${cc.join(', ')}<br/>
-  <b>BCC</b>: ${bcc.join(', ')}<br/><br/>`
+export const created: EmailTemplate = {
+  subject: `LIL - Location / Sub-Location creation`,
+  body: `Hi,<br/><br/>
+Your Location / Sub-Location {{message}} has been successfully created.<br/><br/>
+You can now go to your main Stockroom and print your labels.<br/><br/>
+Best regards,<br/><br/>
+Service LIL / RMM`,
 }
