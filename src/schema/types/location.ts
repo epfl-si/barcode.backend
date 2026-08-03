@@ -2,10 +2,12 @@ import {RMMCodeStatus} from '../../../generated/prisma';
 import {getBoxesByRMMStatus} from "./box";
 import {getShelvesByRMMStatus} from "./shelf";
 import {getStoragesByRMMStatus} from "./storage";
+import {extractSciper} from "../../lib/user";
 
 export interface Code {
   barcode: string,
   locationName: "storage" | "shelf" | "box",
+  createdBy: string,
   deletedOn: Date,
   deletedBy: string,
   parentNiv1: string,
@@ -48,10 +50,11 @@ export async function getCodesByStatus (prisma: any, status: RMMCodeStatus) {
   const boxes =  await getBoxesByRMMStatus(prisma, status);
 
   return [
-    ...storages.map((code: { barcode: any; deletedBy: any; deletedOn: any; roomDisplay: any; roomType: { rmmName: string; } }) => {
+    ...storages.map((code: { barcode: string; createdBy: string, deletedBy: string; deletedOn: Date; roomDisplay: string; roomType: { rmmName: string; } }) => {
       return {
         barcode: code.barcode,
         locationName: 'storage',
+        createdBy: extractSciper(code.createdBy),
         deletedBy: code.deletedBy,
         deletedOn: code.deletedOn,
         parentNiv1: code.roomDisplay,
@@ -61,10 +64,11 @@ export async function getCodesByStatus (prisma: any, status: RMMCodeStatus) {
         roomName: code.roomDisplay
       }
     }),
-    ...shelves.map((code: { barcode: any; deletedBy: any; deletedOn: any; storage: { barcode: any; roomDisplay: any; roomType: { rmmName: string; } }; }) => {
+    ...shelves.map((code: { barcode: string; createdBy: string, deletedBy: string; deletedOn: Date; storage: { barcode: string; roomDisplay: string; roomType: { rmmName: string; } }; }) => {
       return {
         barcode: code.barcode,
         locationName: 'shelf',
+        createdBy: extractSciper(code.createdBy),
         deletedBy: code.deletedBy,
         deletedOn: code.deletedOn,
         parentNiv1: code.storage.barcode,
@@ -74,10 +78,11 @@ export async function getCodesByStatus (prisma: any, status: RMMCodeStatus) {
         roomName: code.storage.roomDisplay
       }
     }),
-    ...boxes.map((code: { barcode: any; deletedBy: any; deletedOn: any; shelf: { barcode: any; storage: { barcode: any; roomDisplay: any; roomType: { rmmName: string; } }; }; }) => {
+    ...boxes.map((code: { barcode: string; createdBy: string, deletedBy: string; deletedOn: Date; shelf: { barcode: string; storage: { barcode: string; roomDisplay: string; roomType: { rmmName: string; } }; }; }) => {
       return {
         barcode: code.barcode,
         locationName: 'box',
+        createdBy: extractSciper(code.createdBy),
         deletedBy: code.deletedBy,
         deletedOn: code.deletedOn,
         parentNiv1: code.shelf.barcode,
