@@ -78,7 +78,7 @@ export async function createIntoRMM () {
     await sendEmailForRMM(message, "created", [user[0].mail]);
   }
 
-  for (const key in createdCodesByUser) {
+  for (const key in errorCodesByUser) {
     const user = await getUserFromApi(key);
     if (user.length == 0) return;
     const message = errorCodesByUser[key].join('\n');
