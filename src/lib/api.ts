@@ -88,7 +88,7 @@ export async function getRoomFromApiByName(name: string): Promise<any> {
 }
 
 export async function getUserFromApi(sciper: string): Promise<any[]> {
-  const url = `${process.env.API_EPFL_CH_URL}/persons?ids=${sciper}&isaccredited=1`;
+  const url = `${process.env.API_EPFL_CH_URL}/persons?ids=${sciper}`;
 
   return await callExternalApi(url, getApiBasicAuth());
 }
