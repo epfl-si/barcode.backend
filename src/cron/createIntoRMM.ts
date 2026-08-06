@@ -75,7 +75,7 @@ export async function createIntoRMM () {
     if (user.length == 0) return;
     const message = createdCodesByUser[key].join('<br/>');
     console.log(`Sending notification for Created: ${message}`);
-    await sendEmailForRMM(message, "created", [user.persons[0].email]);
+    await sendEmailForRMM(`<br/><br/>${message}<br/><br/>`, "created", [user.persons[0].email]);
   }
 
   for (const key in errorCodesByUser) {
@@ -83,7 +83,7 @@ export async function createIntoRMM () {
     if (user.length == 0) return;
     const message = errorCodesByUser[key].join('<br/>');
     console.log(`Sending notification for NotAllowedRooms: ${message}`);
-    await sendEmailForRMM(message, "notAllowedRooms", [user.persons[0].email]);
+    await sendEmailForRMM(`<br/><br/>${message}<br/><br/>`, "notAllowedRooms", [user.persons[0].email]);
   }
 }
 
