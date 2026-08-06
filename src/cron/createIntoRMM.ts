@@ -73,7 +73,7 @@ export async function createIntoRMM () {
   for (const key in createdCodesByUser) {
     const user: any = await getUserFromApi(key);
     if (user.length == 0) return;
-    const message = createdCodesByUser[key].join('\n');
+    const message = createdCodesByUser[key].join('<br/>');
     console.log(`Sending notification for Created: ${message}`);
     await sendEmailForRMM(message, "created", [user.persons[0].email]);
   }
@@ -81,7 +81,7 @@ export async function createIntoRMM () {
   for (const key in errorCodesByUser) {
     const user: any = await getUserFromApi(key);
     if (user.length == 0) return;
-    const message = errorCodesByUser[key].join('\n');
+    const message = errorCodesByUser[key].join('<br/>');
     console.log(`Sending notification for NotAllowedRooms: ${message}`);
     await sendEmailForRMM(message, "notAllowedRooms", [user.persons[0].email]);
   }
