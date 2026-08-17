@@ -14,9 +14,9 @@ Le service LIL`,
 }
 
 export const notAllowedRooms: EmailTemplate = {
-  subject: `LIL - Issue with your Location / Sub-Location creation`,
+  subject: `LIL - Issue with your Location(s) / Sub-Location(s) creation`,
   body: `Hi,<br/><br/>
-The creation of your Location / Sub-Location was unsuccessful.<br/><br/>
+The creation of your Location(s) / Sub-Location(s) was unsuccessful.<br/><br/>
 {{message}}<br/><br/>
 Please contact Sesame for assistance.<br/><br/>
 Best regards,<br/><br/>
@@ -24,9 +24,9 @@ Service LIL / RMM`,
 }
 
 export const created: EmailTemplate = {
-  subject: `LIL - Location / Sub-Location creation`,
+  subject: `LIL - Location(s) / Sub-Location(s) creation`,
   body: `Hi,<br/><br/>
-Your Location / Sub-Location {{message}} has been successfully created.<br/><br/>
+The creation of your Location(s) / Sub-Location(s) {{message}} was successful.<br/><br/>
 You can now go to your main Stockroom and print your labels.<br/><br/>
 Best regards,<br/><br/>
 Service LIL / RMM`,
