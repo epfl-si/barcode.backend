@@ -19,9 +19,6 @@ builder.prismaObject('Shelf', {
         needPermission: 'canReadBox'
       },
       query: (args:{}, ctx: any) => ({
-        where: {
-          deletedOn: ctx.user.isAdmin ? undefined : null,
-        },
         orderBy: {
           numBox: 'asc'
         }

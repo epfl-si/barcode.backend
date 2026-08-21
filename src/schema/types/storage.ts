@@ -26,9 +26,6 @@ const StorageRef = builder.prismaObject('Storage', {
         needPermission: 'canReadShelf'
       },
       query: (args:{}, ctx: any) => ({
-        where: {
-          deletedOn: ctx.user.isAdmin ? undefined : null,
-        },
         orderBy: {
           numShelf: 'asc'
         }
@@ -112,9 +109,7 @@ builder.queryField('storages', (t) =>
       (await getTypesEnum(ctx, 'storageType', true)).optional().parse(args.storageTypeSymbol);
       (await getTypesEnum(ctx, 'storageSubType', true)).optional().parse(args.storageSubTypeSymbol);
 
-      const where: any = {
-        deletedOn: ctx.user.isAdmin ? undefined : null,
-      };
+      const where: any = {};
       if (args.roomTypeSymbol) {
         where.roomType = { symbol: args.roomTypeSymbol }
       }
