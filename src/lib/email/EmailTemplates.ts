@@ -18,7 +18,7 @@ export const notAllowedRooms: EmailTemplate = {
   body: `Hi,<br/><br/>
 The creation of your Location(s) / Sub-Location(s) was unsuccessful.<br/><br/>
 {{message}}<br/><br/>
-Please contact Sesame for assistance.<br/><br/>
+Please contact the Service Desk (1234@epfl.ch) for assistance.<br/><br/>
 Best regards,<br/><br/>
 Service LIL / RMM`,
 }
