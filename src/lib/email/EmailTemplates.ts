@@ -8,7 +8,7 @@ export const toBeDeletedCodes: EmailTemplate = {
   body: `Bonjour,<br/><br/>
 Voici la liste des location(s) qui ont été supprimés dans LIL et <b>qui doivent être supprimés dans RMM</b>: <br/><br/>
 {{message}}<br/><br/>
-Pour toutes questions, merci de contacter le support Catalyse.<br/><br/>
+Pour toutes questions, merci de contacter le <a href="mailto:1234@epfl.ch">Service Desk</a>.<br/><br/>
 Merci,<br/><br/>
 Le service LIL`,
 }
@@ -18,7 +18,7 @@ export const notAllowedRooms: EmailTemplate = {
   body: `Hi,<br/><br/>
 The creation of your Location(s) / Sub-Location(s) was unsuccessful.<br/><br/>
 {{message}}<br/><br/>
-Please contact the Service Desk (1234@epfl.ch) for assistance.<br/><br/>
+Please contact the <a href="mailto:1234@epfl.ch">Service Desk</a> for assistance.<br/><br/>
 Best regards,<br/><br/>
 Service LIL / RMM`,
 }
